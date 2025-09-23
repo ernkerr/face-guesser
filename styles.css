@@ -1,0 +1,35 @@
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  flex-direction: row;
+  /* background-color: aliceblue; */
+  align-items: baseline;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: center;
+}
+
+.grid-container {
+  display: grid;
+  margin: auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.grid-item {
+  background-color: aliceblue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.next {
+  /* background-color: aliceblue; */
+  border: none;
+  display: flex;
+  margin: auto;
+  margin-top: 10px;
+  padding: 10px;
+}
