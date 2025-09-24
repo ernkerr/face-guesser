@@ -1,3 +1,5 @@
+import { generateRandomSet } from "./utils/generateRandomSet.js";
+
 // MVP:
 // make database for people with name + image
 const options = [
@@ -8,30 +10,41 @@ const options = [
   { name: "timmy_trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
 
-function generateRandomNums(length) {
-  const randomNums = new Set();
+//
+// round generator
+//
 
-  while (randomNums.size < 4) {
-    // generate a random whole integer
-    let randomInt = Math.floor(Math.random() * length);
-    // add to the set if it's not already there
-    randomNums.add(randomInt);
-  }
-  return randomNums;
-}
-
-// round generator:
 function roundGenerator(category) {
   // get 4 random djs
-  const filteredOptions = options.filter(function (option) {
-    return option.category === category;
+  // filter the options we have to make sure we're only pooling from the selected category
+
+  // note:
+  // arrow function are normally like this:
+  // const functionName = (parameters) => {code block};
+  //
+  // but since we are automatically (implicitly) returning the result
+  // const functionName = (parameters) => expression;
+
+  const filteredOptions = options.filter(
+    (option) => option.category === category
+  );
+
+  // generate four random unique numbers
+  let randomSet = generateRandomSet(filteredOptions.length);
+
+  console.log("Random set", randomSet);
+
+  randomSet.forEach(function (index) {
+    console.log(index);
   });
 
-  //   console.log(filteredOptions);
+  const gridItems = document.querySelectorAll(".grid-item");
 
-  let randomSet = generateRandomNums(filteredOptions.length);
+  //   {0, 3, 1, 2}
 
-  console.log("Random Set", randomSet);
+  //   document.getElementByClass("grid-item").setAttribute("src");
+
+  // .addEventListener("click", checkGuess)
 
   //   document.getElementById("grid-item").setAttribute("src", "newImage.jpg");
 
@@ -58,6 +71,7 @@ function roundGenerator(category) {
 const nextBtn = document.getElementById("next");
 
 function handleNext() {
+  console.log("Next Clicked");
   let category = "dj";
   // score
   // generate round
