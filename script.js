@@ -29,20 +29,20 @@ function roundGenerator(category) {
     (option) => option.category === category
   );
 
-  // generate four random unique numbers
+  // generate four random unique numbers using util function
   let randomSet = generateRandomSet(filteredOptions.length);
 
   console.log("Random set", randomSet);
 
-  randomSet.forEach(function (index) {
-    console.log(index);
-  });
-
   const gridItems = document.querySelectorAll(".grid-item");
 
-  //   {0, 3, 1, 2}
-
-  //   document.getElementByClass("grid-item").setAttribute("src");
+  // NOTE: Convert Set → Array so we can use index in forEach
+  // Set.forEach does NOT provide an index (its callback is (value, valueAgain, set)),
+  // so to loop with both value and index (value, index) we need Array.from().
+  Array.from(randomSet).forEach((imageIndex, i) => {
+    const img = gridItems[i].querySelector("img");
+    img.setAttribute("src", filteredOptions[imageIndex].source);
+  });
 
   // .addEventListener("click", checkGuess)
 
