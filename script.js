@@ -10,24 +10,24 @@ const options = [
   { name: "timmy_trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
 
+// let user select a category
+let category = "dj";
+
+// filter the options we have to make sure we're only pooling from the selected category
+// note:
+// arrow function are normally like this:
+// const functionName = (parameters) => {code block};
+//
+// but since we are automatically (implicitly) returning the result
+// const functionName = (parameters) => expression;
+let filteredOptions = options.filter((option) => option.category === category);
+
 //
 // round generator
 //
 
-function roundGenerator(category) {
+function roundGenerator() {
   // get 4 random djs
-  // filter the options we have to make sure we're only pooling from the selected category
-
-  // note:
-  // arrow function are normally like this:
-  // const functionName = (parameters) => {code block};
-  //
-  // but since we are automatically (implicitly) returning the result
-  // const functionName = (parameters) => expression;
-
-  const filteredOptions = options.filter(
-    (option) => option.category === category
-  );
 
   // generate four random unique numbers using util function
   let randomSet = generateRandomSet(filteredOptions.length);
@@ -72,10 +72,9 @@ const nextBtn = document.getElementById("next");
 
 function handleNext() {
   console.log("Next Clicked");
-  let category = "dj";
   // score
   // generate round
-  roundGenerator(category);
+  roundGenerator();
 }
 
 nextBtn.addEventListener("click", handleNext);
