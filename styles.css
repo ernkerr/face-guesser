@@ -11,9 +11,16 @@
   justify-content: center;
 }
 
+.question {
+  display: flex;
+  justify-content: center;
+  margin: auto;
+}
+
 .grid-container {
   display: grid;
   margin: auto;
+  margin-top: 10px;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   max-width: 400px;
