@@ -35,6 +35,9 @@ let score = 0;
 let rounds = 0;
 let answerIndex;
 
+// TODO:
+let mode = "easy";
+
 // TODO: let user select a category
 let category = "dj";
 
@@ -42,6 +45,7 @@ let filteredOptions = options.filter((option) => option.category === category); 
 const gridItems = document.querySelectorAll(".grid-item");
 const scoreDisplay = document.getElementById("score");
 const questionElement = document.querySelector(".question");
+const nextBtn = document.getElementById("next");
 
 // ======= ROUND GENERATOR =======
 
@@ -82,6 +86,43 @@ function roundGenerator() {
 
 // ======= GUESS HANDLER =======
 
+function checkGuess(guessIndex) {
+  console.log("guessIndex: ", guessIndex);
+  console.log("answerIndex: ", answerIndex);
+
+  if (guessIndex === answerIndex) {
+    console.log("Correct!");
+    updateScore(10);
+
+    // setTimeout(handleNext, 1500);
+  }
+}
+
+// ======= SCORE HANDLER =======
+
+function updateScore(points) {
+  score += points;
+
+  // animation
+  scoreDisplay.classList.remove("gelatine"); // reset
+  void scoreDisplay.offsetWidth; // force reflow (hack so browser sees the removal)
+  scoreDisplay.classList.add("gelatine"); // re-add so animation runs again
+
+  scoreDisplay.textContent = score;
+}
+
+// ======= NEXT ROUND =======
+
+function handleNext() {
+  console.log("Next Clicked");
+  rounds += 1;
+  roundGenerator();
+}
+
+nextBtn.addEventListener("click", handleNext);
+
+// ======= INITIALIZATION =======
+
 gridItems.forEach((gridItem) => {
   const img = gridItem.querySelector("img");
   // add an event listener
@@ -96,37 +137,5 @@ gridItems.forEach((gridItem) => {
   });
 });
 
-function checkGuess(guessIndex) {
-  console.log("guessIndex: ", guessIndex);
-  console.log("answerIndex: ", answerIndex);
-
-  if (guessIndex === answerIndex) {
-    console.log("Correct!");
-
-    score += 10;
-    let scoreDisplay = document.getElementById("score");
-
-    // animation
-    scoreDisplay.classList.remove("gelatine"); // reset
-    void scoreDisplay.offsetWidth; // force reflow (hack so browser sees the removal)
-    scoreDisplay.classList.add("gelatine"); // re-add so animation runs again
-
-    scoreDisplay.textContent = score;
-
-    // setTimeout(handleNext, 1500);
-  }
-}
-
-//
-// score handler
-//
-
-const nextBtn = document.getElementById("next");
-
-function handleNext() {
-  console.log("Next Clicked");
-  rounds += 1;
-  roundGenerator();
-}
-
-nextBtn.addEventListener("click", handleNext);
+// Start first round
+roundGenerator();
