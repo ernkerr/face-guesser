@@ -1,4 +1,7 @@
 import { generateRandomSet } from "./utils/generateRandomSet.js";
+import { DotLottie } from "https://esm.sh/@lottiefiles/dotlottie-web";
+
+import lottie from "https://cdn.skypack.dev/lottie-web";
 
 // MVP:
 // make database for people with name + image
@@ -37,6 +40,9 @@ let answerIndex;
 
 // TODO:
 let mode = "easy";
+// easy mode is four images one name
+
+// then make a mode for one image and
 
 // TODO: let user select a category
 let category = "dj";
@@ -47,10 +53,44 @@ const scoreDisplay = document.getElementById("score");
 const questionElement = document.querySelector(".question");
 const nextBtn = document.getElementById("next");
 
+// ======= ANIMATIONS =======
+let dotAnimation;
+
+// fetch the local JSON
+fetch("./animations/correct.json")
+  .then((res) => res.json())
+  .then((animationData) => {
+    dotAnimation = lottie.loadAnimation({
+      container: document.querySelector("#lottie-container"), // use div
+      renderer: "svg", // "canvas" also works
+      loop: false,
+      autoplay: false,
+      animationData: animationData, // pass JSON here
+    });
+    // when it finishes, hide the container again
+    dotAnimation.addEventListener("complete", () => {
+      document.querySelector("#lottie-container").style.display = "none";
+    });
+  })
+  .catch((err) => console.error("Failed to load Lottie JSON:", err));
+
+function playCorrectAnimation() {
+  if (dotAnimation) {
+    const container = document.querySelector("#lottie-container");
+
+    // show container
+    container.style.display = "flex";
+
+    // restart animation
+    dotAnimation.goToAndPlay(0, true);
+  }
+}
+
 // ======= ROUND GENERATOR =======
 
 function roundGenerator() {
-  // Reset highlights
+  // reset
+  enableGuesses();
   gridItems.forEach((item) => item.classList.remove("correct-answer"));
 
   // Generate 4 random unique numbers
@@ -91,10 +131,12 @@ function checkGuess(guessIndex) {
   console.log("answerIndex: ", answerIndex);
 
   if (guessIndex === answerIndex) {
+    disableGuesses();
     console.log("Correct!");
+    playCorrectAnimation();
     updateScore(10);
 
-    // setTimeout(handleNext, 1500);
+    setTimeout(handleNext, 1000);
   }
 }
 
@@ -120,6 +162,21 @@ function handleNext() {
 }
 
 nextBtn.addEventListener("click", handleNext);
+
+// ======= CLICK CONTROL =======
+function disableGuesses() {
+  gridItems.forEach((gridItem) => {
+    const img = gridItem.querySelector("img");
+    img.style.pointerEvents = "none"; // block clicks
+  });
+}
+
+function enableGuesses() {
+  gridItems.forEach((gridItem) => {
+    const img = gridItem.querySelector("img");
+    img.style.pointerEvents = "auto"; // allow clicks
+  });
+}
 
 // ======= INITIALIZATION =======
 
