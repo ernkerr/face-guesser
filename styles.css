@@ -11,6 +11,9 @@
   justify-content: center;
 }
 
+#score {
+  margin-left: 5px;
+}
 .question {
   display: flex;
   justify-content: center;
@@ -48,4 +51,41 @@
   margin: auto;
   margin-top: 10px;
   padding: 10px;
+}
+
+/* animations */
+
+.gelatine {
+  animation: gelatine 0.5s;
+}
+@keyframes gelatine {
+  from,
+  to {
+    transform: scale(1, 1);
+  }
+  25% {
+    transform: scale(0.9, 1.1);
+  }
+  50% {
+    transform: scale(1.1, 0.9);
+  }
+  75% {
+    transform: scale(0.95, 1.05);
+  }
+}
+
+.pop {
+  animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5); /* grows big */
+  }
+  100% {
+    transform: scale(1); /* back to normal */
+  }
 }

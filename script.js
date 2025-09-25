@@ -6,8 +6,8 @@ const options = [
   { name: "Martin Garrix", source: "images/martin_garrix.png", category: "dj" },
   { name: "David Guetta", source: "images/david_guetta.png", category: "dj" },
   { name: "Alok", source: "images/alok.png", category: "dj" },
-  { name: "fred again", source: "images/fred_again.png", category: "dj" },
-  { name: "timmy trumpet", source: "images/timmy_trumpet.png", category: "dj" },
+  { name: "Fred Again", source: "images/fred_again.png", category: "dj" },
+  { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
 // John Summit
 // Dom Dolla
@@ -31,36 +31,37 @@ const options = [
 
 // Rufus Du Sol
 
-// let user select a category
+let score = 0;
+let rounds = 0;
+let answerIndex;
+
+// TODO: let user select a category
 let category = "dj";
 
-// filter the options we have to make sure we're only pooling from the selected category
-let filteredOptions = options.filter((option) => option.category === category);
-
-let answerIndex;
+let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
 const gridItems = document.querySelectorAll(".grid-item");
+const scoreDisplay = document.getElementById("score");
+const questionElement = document.querySelector(".question");
 
-//
-// round generator
-//
+// ======= ROUND GENERATOR =======
+
 function roundGenerator() {
-  // generate four random unique numbers using util function
-  const randomSet = generateRandomSet(filteredOptions.length);
+  // Reset highlights
+  gridItems.forEach((item) => item.classList.remove("correct-answer"));
+
+  // Generate 4 random unique numbers
+  const randomArray = Array.from(generateRandomSet(filteredOptions.length));
   // NOTE: Convert Set → Array so we can use index in forEach
   // Set.forEach does NOT provide an index (its callback is (value, valueAgain, set)),
   // so to loop with both value and index (value, index) we need Array.from().
-  const randomArray = Array.from(randomSet);
 
-  // randomly select one of these as the "answer"
+  // Choose one as the "answer"
   answerIndex = randomArray[Math.floor(Math.random() * 4)];
   const answer = filteredOptions[answerIndex];
-  console.log("answer", answer);
 
-  // set the question
+  // Set the question
   const questionElement = document.querySelector(".question");
   questionElement.textContent = `Who is ${answer.name}?`;
-
-  // render the images for the user to guess from
 
   // Loop over the array of random indices for this round
   // optionIndex represents these values at each loop ex: [3, 0, 4, 2]
@@ -79,14 +80,17 @@ function roundGenerator() {
   });
 }
 
-//
-// guess handler:
-//
+// ======= GUESS HANDLER =======
 
 gridItems.forEach((gridItem) => {
   const img = gridItem.querySelector("img");
   // add an event listener
   img.addEventListener("click", (event) => {
+    // bounce animation
+    img.classList.remove("gelatine"); // reset
+    void img.offsetWidth; // force reflow (hack so browser sees the removal)
+    img.classList.add("gelatine"); // re-add so animation runs again
+
     const guessIndex = parseInt(event.target.dataset.index);
     checkGuess(guessIndex);
   });
@@ -95,25 +99,33 @@ gridItems.forEach((gridItem) => {
 function checkGuess(guessIndex) {
   console.log("guessIndex: ", guessIndex);
   console.log("answerIndex: ", answerIndex);
+
   if (guessIndex === answerIndex) {
     console.log("Correct!");
+
+    score += 10;
+    let scoreDisplay = document.getElementById("score");
+
+    // animation
+    scoreDisplay.classList.remove("gelatine"); // reset
+    void scoreDisplay.offsetWidth; // force reflow (hack so browser sees the removal)
+    scoreDisplay.classList.add("gelatine"); // re-add so animation runs again
+
+    scoreDisplay.textContent = score;
+
+    // setTimeout(handleNext, 1500);
   }
 }
 
-// checker:
-
-// - check the answer
-
-// score handler:
-
-// - score and move onto the next question (call round generator)
+//
+// score handler
+//
 
 const nextBtn = document.getElementById("next");
 
 function handleNext() {
   console.log("Next Clicked");
-  // score
-  // generate round
+  rounds += 1;
   roundGenerator();
 }
 
