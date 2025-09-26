@@ -1,3 +1,5 @@
+// Title Screen
+
 import { generateRandomSet } from "./utils/generateRandomSet.js";
 import { initAnimations, playAnimation } from "./animations.js";
 
@@ -17,14 +19,17 @@ let score = 0;
 let rounds = 0;
 let answerIndex;
 
-// TODO:
+// ======= MODE =======
 let mode = "easy";
 // easy mode is four images one name
 
 // then make a mode for one image and
 
-// TODO: let user select a category
+// ======= CATEGORY =======
 let category = "dj";
+let categoryTitle = category.toUpperCase();
+document.getElementById("category").textContent = `${categoryTitle}`;
+// P2: let user select a category
 
 let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
 const gridItems = document.querySelectorAll(".grid-item");
@@ -50,8 +55,19 @@ function roundGenerator() {
   const answer = filteredOptions[answerIndex];
 
   // Set the question
-  const questionElement = document.querySelector(".question");
-  questionElement.textContent = `Who is ${answer.name}?`;
+  const questionText = document.querySelector(".question-text");
+  const questionImg = document.querySelector(".question-img");
+
+  if (mode === "easy") {
+    // Show text only
+    questionText.textContent = `Who is ${answer.name}?`;
+    questionImg.style.display = "none"; // hide image
+  } else if (mode === "medium") {
+    // Show text + image
+    questionText.textContent = `Who is this?`;
+    questionImg.src = answer.source;
+    questionImg.style.display = "block"; // show image
+  }
 
   // Loop over the array of random indices for this round
   // optionIndex represents these values at each loop ex: [3, 0, 4, 2]
@@ -60,21 +76,30 @@ function roundGenerator() {
     // Get the <img> element inside the corresponding grid item
     // gridItems[i] is the <div class="grid-item"> at position i
     const img = gridItems[i].querySelector("img");
+    const name = gridItems[i].querySelector("p");
 
-    // set the image src to the URL found in the filteredOptions array at optionIndex
-    img.setAttribute("src", filteredOptions[optionIndex].source);
+    const option = filteredOptions[optionIndex];
 
-    // store the index of this img as a data atribute on the <img>
-    img.dataset.index = optionIndex; // store index for clicks
-    console.log("Option index", optionIndex);
+    if (mode === "easy") {
+      // set the image src to the URL found in the filteredOptions array at optionIndex
+
+      img.setAttribute("src", option.source);
+      // store the index of this img as a data atribute on the <img>
+      img.dataset.index = optionIndex; // store index for clicks
+    } else if (mode === "medium") {
+      name.textContent = `${option.name}`;
+      name.dataset.index = optionIndex; // store index for clicks
+    }
+
+    // console.log("Option index", optionIndex);
   });
 }
 
 // ======= GUESS HANDLER =======
 
 function checkGuess(guessIndex) {
-  console.log("guessIndex: ", guessIndex);
-  console.log("answerIndex: ", answerIndex);
+  //   console.log("guessIndex: ", guessIndex);
+  //   console.log("answerIndex: ", answerIndex);
 
   if (guessIndex === answerIndex) {
     playAnimation("correct");
@@ -130,17 +155,36 @@ function enableGuesses() {
 
 // ======= INITIALIZATION =======
 
-gridItems.forEach((gridItem) => {
-  const img = gridItem.querySelector("img");
-  // add an event listener
-  img.addEventListener("click", (event) => {
-    // bounce animation
-    img.classList.remove("gelatine"); // reset
-    void img.offsetWidth; // force reflow (hack so browser sees the removal)
-    img.classList.add("gelatine"); // re-add so animation runs again
+// gridItems.forEach((gridItem) => {
+//   const img = gridItem.querySelector("img");
+//   // add an event listener
+//   img.addEventListener("click", (event) => {
+//     // bounce animation
+//     img.classList.remove("gelatine"); // reset
+//     void img.offsetWidth; // force reflow (hack so browser sees the removal)
+//     img.classList.add("gelatine"); // re-add so animation runs again
 
-    const guessIndex = parseInt(event.target.dataset.index);
-    checkGuess(guessIndex);
+//     const guessIndex = parseInt(event.target.dataset.index);
+//     checkGuess(guessIndex);
+//   });
+// });
+
+gridItems.forEach((gridItem) => {
+  gridItem.addEventListener("click", (event) => {
+    // figure out what was clicked (img or p)
+    const target = event.target;
+    const guessIndex = parseInt(target.dataset.index);
+
+    // only continue if it was a valid clickable element (has data-index)
+    if (!isNaN(guessIndex)) {
+      // bounce animation on the WHOLE grid item
+      gridItem.classList.remove("gelatine"); // reset
+      void gridItem.offsetWidth; // force reflow
+      gridItem.classList.add("gelatine"); // re-add
+
+      // run your guess check logic
+      checkGuess(guessIndex);
+    }
   });
 });
 
