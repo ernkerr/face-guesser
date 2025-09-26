@@ -1,3 +1,10 @@
+/* .rampart-one-regular {
+  font-family: "Rampart One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: xx-large;
+} */
+
 .header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -9,6 +16,7 @@
 .scoreboard {
   display: flex;
   justify-content: center;
+  font-size: xx-large;
 }
 
 #score {

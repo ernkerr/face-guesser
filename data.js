@@ -2,7 +2,26 @@ const categories = {
   djs: [
     "Martin Garrix",
     "David Guetta",
-    // "Dimitri Vegas & Like Mike",
+    // John Summit
+    // Dom Dolla
+    // Mau P
+    // Sarah Landry
+    // Illenium
+    // Subtronics
+    // Excision
+    // Disco Lines
+    // KAYTRANADA
+    // Skrillex
+    // Flume
+    // Chainsmokers
+    // Green Velvet
+    // Gryffin
+    // Rezz
+    // Tiesto
+    // Pasquale
+    // Dillon Francis
+    // Allison Wonderland
+    // Rufus Du Sol
     "Alok",
     "Timmy Trumpet",
     "Armin Van Buuren",
