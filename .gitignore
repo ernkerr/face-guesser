@@ -1,0 +1,27 @@
+# Build artifacts
+/build/
+/dist/
+target/
+*.o
+*.exe
+*.dll
+
+# IDE and editor files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Dependency directories
+node_modules/
+vendor/
+venv/
+
+# Log files
+*.log
+
+# Sensitive configuration files
+.env
+config.js

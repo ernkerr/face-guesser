@@ -20,8 +20,31 @@ let rounds = 0;
 let answerIndex;
 
 // ======= MODE =======
-let mode = "easy";
+const modes = ["easy", "normal", "expert"];
+let mode = "normal";
 // easy mode is four images one name
+
+let modeBtn = document.getElementById("mode-btn");
+modeBtn.textContent = `Mode: ${mode}`;
+
+// when mode Btn is clicked, switch from easy normal and expert
+// array [ index + 1 ]
+
+modeBtn.addEventListener("click", switchMode);
+
+function switchMode() {
+  // get the current mod's index
+  const currentIndex = modes.indexOf(mode);
+
+  // get next index (wraps back to 0)
+  const nextIndex = (currentIndex + 1) % modes.length;
+
+  // update mode
+  mode = modes[nextIndex];
+  // Optional: update button text or log it
+  modeBtn.textContent = `Mode: ${mode}`;
+  console.log("Mode switched to:", mode);
+}
 
 // then make a mode for one image and
 
@@ -154,20 +177,6 @@ function enableGuesses() {
 }
 
 // ======= INITIALIZATION =======
-
-// gridItems.forEach((gridItem) => {
-//   const img = gridItem.querySelector("img");
-//   // add an event listener
-//   img.addEventListener("click", (event) => {
-//     // bounce animation
-//     img.classList.remove("gelatine"); // reset
-//     void img.offsetWidth; // force reflow (hack so browser sees the removal)
-//     img.classList.add("gelatine"); // re-add so animation runs again
-
-//     const guessIndex = parseInt(event.target.dataset.index);
-//     checkGuess(guessIndex);
-//   });
-// });
 
 gridItems.forEach((gridItem) => {
   gridItem.addEventListener("click", (event) => {
