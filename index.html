@@ -38,58 +38,77 @@
         </div>
       </div>
     </div>
+
+    <!-- Game screen -->
+    <div id="game-screen">
+      <main class="w-full">
+        <header
+          class="flex flex-row justify-between items-center w-full p-8 px-16"
+        >
+          <img
+            src="/images/guessThe.png"
+            class="glowing-image-small w-[200px]"
+          />
+
+          <div class="flex flex-row items-center">
+            <h3 class="arcade text-white text-2xl">score:</h3>
+            <h3 class="arcade text-white text-2xl" id="score">0</h3>
+          </div>
+        </header>
+        <section>
+          <div class="arcade text-white text-2xl question">
+            <p class="question-text"></p>
+            <img
+              class="question-img"
+              src=""
+              alt="question image"
+              style="display: none"
+            />
+          </div>
+          <div class="grid-container">
+            <div class="grid-item">
+              <p class="arcade text-white text-2xl name"></p>
+              <img src="" />
+            </div>
+            <div class="grid-item">
+              <p class="arcade text-white text-2xl name"></p>
+
+              <img src="" />
+            </div>
+            <div class="grid-item">
+              <p class="arcade text-white text-2xl name"></p>
+
+              <img src="" />
+            </div>
+            <div class="grid-item">
+              <p class="arcade text-white text-2xl name"></p>
+
+              <img src="" />
+            </div>
+          </div>
+        </section>
+        <div id="lottie-container"></div>
+        <button
+          class="arcade text-white text-2xl next glow-button p-10"
+          id="next"
+        >
+          Next
+        </button>
+      </main>
+    </div>
+
     <script type="module" src="script.js"></script>
 
     <!-- 
-    <header></header>
-    <div class="scoreboard">
-      <h3>score:</h3>
-      <h3 id="score">0</h3>
-    </div>
-
-    <main>
-      <section>
-        <div class="question">
-          <p class="question-text"></p>
-          <img
-            class="question-img"
-            src=""
-            alt="question image"
-            style="display: none"
-          />
-        </div>
-        <div class="grid-container">
-          <div class="grid-item">
-            <p class="name"></p>
-            <img src="" />
-          </div>
-          <div class="grid-item">
-            <p class="name"></p>
-
-            <img />
-          </div>
-          <div class="grid-item">
-            <p class="name"></p>
-
-            <img />
-          </div>
-          <div class="grid-item">
-            <p class="name"></p>
-
-            <img />
-          </div>
-        </div>
-      </section>
-      <div id="lottie-container"></div>
-      <button class="next rampart-one-regular" id="next">Next</button>
-    </main>
-
     
+  
+  
+  
+  / -->
   </body>
 </html>
 
-
- 
-/ -->
-  </body>
-</html>
+<!-- High Score screen -->
+<div id="high-score-screen">
+  <h1>High Scores</h1>
+</div>

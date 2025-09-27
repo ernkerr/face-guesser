@@ -15,6 +15,34 @@ const options = [
   { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
 
+// title screen
+
+const titleScreen = document.getElementById("title-screen");
+const startBtn = document.getElementById("start-btn");
+let modeBtn = document.getElementById("mode-btn");
+
+// debugging
+// titleScreen.style.display = "none";
+
+// ======= GAME SCREEN =======
+const gameScreen = document.getElementById("game-screen");
+gameScreen.style.display = "none";
+
+startBtn.addEventListener("click", () => {
+  titleScreen.style.opacity = 0;
+  setTimeout(() => {
+    titleScreen.style.display = "none"; // hide title screen
+    gameScreen.style.display = "block"; // show game screen
+    gameScreen.style.opacity = 1;
+    // Start first round
+    roundGenerator();
+  }, 500); // match the CSS transition time
+});
+
+const gridItems = document.querySelectorAll(".grid-item");
+const scoreDisplay = document.getElementById("score");
+const questionElement = document.querySelector(".question");
+const nextBtn = document.getElementById("next");
 let score = 0;
 let rounds = 0;
 let answerIndex;
@@ -22,14 +50,7 @@ let answerIndex;
 // ======= MODE =======
 const modes = ["easy", "normal", "expert"];
 let mode = "normal";
-// easy mode is four images one name
-
-let modeBtn = document.getElementById("mode-btn");
 modeBtn.textContent = `Mode: ${mode}`;
-
-// when mode Btn is clicked, switch from easy normal and expert
-// array [ index + 1 ]
-
 modeBtn.addEventListener("click", switchMode);
 
 function switchMode() {
@@ -46,19 +67,13 @@ function switchMode() {
   console.log("Mode switched to:", mode);
 }
 
-// then make a mode for one image and
-
 // ======= CATEGORY =======
 let category = "dj";
-let categoryTitle = category.toUpperCase();
-document.getElementById("category").textContent = `${categoryTitle}`;
+// let categoryTitle = category.toUpperCase();
+// document.getElementById("category").textContent = `${categoryTitle}`;
 // P2: let user select a category
 
 let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
-const gridItems = document.querySelectorAll(".grid-item");
-const scoreDisplay = document.getElementById("score");
-const questionElement = document.querySelector(".question");
-const nextBtn = document.getElementById("next");
 
 // ======= ROUND GENERATOR =======
 
@@ -85,7 +100,7 @@ function roundGenerator() {
     // Show text only
     questionText.textContent = `Who is ${answer.name}?`;
     questionImg.style.display = "none"; // hide image
-  } else if (mode === "medium") {
+  } else if (mode === "normal") {
     // Show text + image
     questionText.textContent = `Who is this?`;
     questionImg.src = answer.source;
@@ -196,6 +211,3 @@ gridItems.forEach((gridItem) => {
     }
   });
 });
-
-// Start first round
-roundGenerator();

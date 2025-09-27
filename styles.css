@@ -5,13 +5,23 @@
   src: url("/fonts/arcade.otf") format("opentype");
 }
 
+#title-screen,
+#game-screen {
+  transition: opacity 0.5s ease;
+}
+/* title screen  */
+
+/* game screen  */
+
 .glowing-image {
   filter: drop-shadow(0 0 10px #ffd00076) drop-shadow(0 0 5px #ffd500f7)
     /* Inner magenta glow */ drop-shadow(0 0 20px #7c4a15);
 }
 
-/* #ffd500ca */
-/* #7C4A15 */
+.glowing-image-small {
+  filter: drop-shadow(0 0 5px #ffd0005b) drop-shadow(0 0 3px #ffd500d1)
+    /* Inner magenta glow */ drop-shadow(0 0 10px #7c4a15a2);
+}
 
 .glow-button {
   --glow-color: rgb(217, 176, 255);
@@ -62,39 +72,6 @@
     inset 0 0 0.5em 0.25em var(--glow-color);
 }
 
-/* .container {
-  width: 100%;
-  height: 100%;
-  --color: rgba(114, 114, 114, 0.3);
-  background-color: #191a1a;
-  background-image: linear-gradient(
-      0deg,
-      transparent 24%,
-      var(--color) 25%,
-      var(--color) 26%,
-      transparent 27%,
-      transparent 74%,
-      var(--color) 75%,
-      var(--color) 76%,
-      transparent 77%,
-      transparent
-    ),
-    linear-gradient(
-      90deg,
-      transparent 24%,
-      var(--color) 25%,
-      var(--color) 26%,
-      transparent 27%,
-      transparent 74%,
-      var(--color) 75%,
-      var(--color) 76%,
-      transparent 77%,
-      transparent
-    );
-  background-size: 55px 55px;
-} */
-
-/* From Uiverse.io by milegelu */
 .container {
   width: 100%;
   height: 100%;
@@ -152,15 +129,11 @@
     -23px -23px #f06ac1, -24px -24px #f06ac1, -25px -25px #f06ac1;
 }
 
-.scoreboard {
+/* .scoreboard {
   display: flex;
   justify-content: center;
   font-size: xx-large;
-}
-
-#score {
-  margin-left: 5px;
-}
+} */
 
 main {
   position: relative;
@@ -204,14 +177,13 @@ main {
   border-radius: 6px; /* optional: rounded corners */
 }
 
-.next {
-  /* background-color: aliceblue; */
+/* .next {
   border: none;
   display: flex;
   margin: auto;
   margin-top: 10px;
   padding: 10px;
-}
+} */
 
 /* animations */
 #lottie-container {

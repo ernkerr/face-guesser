@@ -25,3 +25,5 @@ venv/
 # Sensitive configuration files
 .env
 config.js
+# React Component Preview
+previewConfig.json
