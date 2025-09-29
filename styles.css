@@ -5,6 +5,17 @@
   src: url("/fonts/arcade.otf") format("opentype");
 }
 
+.arcade {
+  font-family: "Arcade";
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 #title-screen,
 #game-screen {
   transition: opacity 0.5s ease;
@@ -72,6 +83,7 @@
     inset 0 0 0.5em 0.25em var(--glow-color);
 }
 
+/* background  */
 .container {
   width: 100%;
   height: 100%;
@@ -96,11 +108,7 @@
   background-size: var(--gap) var(--gap);
 }
 
-.arcade {
-  font-family: "Arcade";
-}
-
-.shadow-right {
+/* .shadow-right {
   margin-right: 40px;
   font-size: 80px;
   color: #f4e04d;
@@ -127,7 +135,7 @@
     -17px -17px #f06ac1, -18px -18px #f06ac1, -19px -19px #f06ac1,
     -20px -20px #f06ac1, -21px -21px #f06ac1, -22px -22px #f06ac1,
     -23px -23px #f06ac1, -24px -24px #f06ac1, -25px -25px #f06ac1;
-}
+} */
 
 /* .scoreboard {
   display: flex;

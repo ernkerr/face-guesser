@@ -39,9 +39,10 @@ startBtn.addEventListener("click", () => {
   }, 500); // match the CSS transition time
 });
 
-const gridItems = document.querySelectorAll(".grid-item");
 const scoreDisplay = document.getElementById("score");
 const questionElement = document.querySelector(".question");
+const gridItems = document.querySelectorAll(".grid-item");
+const guessInput = document.getElementById(".guess-input");
 const nextBtn = document.getElementById("next");
 let score = 0;
 let rounds = 0;
@@ -105,6 +106,8 @@ function roundGenerator() {
     questionText.textContent = `Who is this?`;
     questionImg.src = answer.source;
     questionImg.style.display = "block"; // show image
+  } else {
+    // show image + input
   }
 
   // Loop over the array of random indices for this round
@@ -124,7 +127,7 @@ function roundGenerator() {
       img.setAttribute("src", option.source);
       // store the index of this img as a data atribute on the <img>
       img.dataset.index = optionIndex; // store index for clicks
-    } else if (mode === "medium") {
+    } else if (mode === "normal") {
       name.textContent = `${option.name}`;
       name.dataset.index = optionIndex; // store index for clicks
     }

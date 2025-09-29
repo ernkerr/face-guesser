@@ -16,28 +16,29 @@
   <body>
     <!-- Title screen -->
     <div id="title-screen">
-      <div class="flex justify-center">
+      <div class="flex flex-col justify-center">
         <img src="/images/guessThe.png" class="glowing-image" />
-      </div>
-      <!-- <div class="flex flex-row justify-center">
-        <h2 class="shadow-right">GUESS</h2>
-        <h2 class="shadow-left">THE</h2>
-      </div> -->
-      <div class="flex justify-center">
-        <h2 class="flex flex-row justify-center">DJ</h2>
-
-        <div class="flex flex-col gap-20 w-[50%]">
-          <button class="arcade glow-button text-white p-3" id="start-btn">
-            Start Game
-          </button>
-          <button
+        </div>
+        <!-- <div class="flex flex-row justify-center">
+          <h2 class="shadow-right">GUESS</h2>
+          <h2 class="shadow-left">THE</h2>
+        </div> -->
+        <div class="flex justify-center">
+          <div class="flex flex-col gap-20 w-[50%]">
+            <button class="arcade glow-button text-white p-3" id="start-btn">
+              Start Game
+            </button>
+            <button
             class="arcade glow-button text-white p-3"
             id="mode-btn"
-          ></button>
-          <button class="arcade glow-button text-white p-3">HIGH SCORES</button>
+            ></button>
+            <button class="arcade glow-button text-white p-3">Category: DJ</button>
+          </div>
         </div>
       </div>
     </div>
+      
+    <!-- /A Game by ern/ -->
 
     <!-- Game screen -->
     <div id="game-screen">
@@ -84,6 +85,12 @@
               <p class="arcade text-white text-2xl name"></p>
 
               <img src="" />
+            </div>
+            <div class="mode-expert">
+
+              <form>
+                <input type="text" id="guess-input">
+              </form>
             </div>
           </div>
         </section>
