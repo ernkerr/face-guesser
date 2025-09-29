@@ -21,15 +21,11 @@ const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
 
-// debugging
-// titleScreen.style.display = "none";
-
 // ======= GAME SCREEN =======
 const gameScreen = document.getElementById("game-screen");
 gameScreen.style.display = "none";
 
 startBtn.addEventListener("click", () => {
-  titleScreen.style.opacity = 0;
   setTimeout(() => {
     titleScreen.style.display = "none"; // hide title screen
     gameScreen.style.display = "block"; // show game screen
@@ -42,7 +38,6 @@ startBtn.addEventListener("click", () => {
 const scoreDisplay = document.getElementById("score");
 const questionElement = document.querySelector(".question");
 const gridItems = document.querySelectorAll(".grid-item");
-const guessInput = document.getElementById(".guess-input");
 const nextBtn = document.getElementById("next");
 let score = 0;
 let rounds = 0;
@@ -55,7 +50,7 @@ modeBtn.textContent = `Mode: ${mode}`;
 modeBtn.addEventListener("click", switchMode);
 
 function switchMode() {
-  // get the current mod's index
+  // get the current mode's index
   const currentIndex = modes.indexOf(mode);
 
   // get next index (wraps back to 0)
@@ -67,6 +62,9 @@ function switchMode() {
   modeBtn.textContent = `Mode: ${mode}`;
   console.log("Mode switched to:", mode);
 }
+
+// the input should be hidden by default unless it's expert mode, then it should be visible
+document.getElementById("expert-mode").style.display = "none";
 
 // ======= CATEGORY =======
 let category = "dj";
@@ -106,9 +104,10 @@ function roundGenerator() {
     questionText.textContent = `Who is this?`;
     questionImg.src = answer.source;
     questionImg.style.display = "block"; // show image
-  } else {
-    // show image + input
   }
+  // else {
+  //   // show image + input
+  // }
 
   // Loop over the array of random indices for this round
   // optionIndex represents these values at each loop ex: [3, 0, 4, 2]

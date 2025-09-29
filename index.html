@@ -16,8 +16,9 @@
   <body>
     <!-- Title screen -->
     <div id="title-screen">
+          <!-- Title Image -->
       <div class="flex flex-col justify-center">
-        <img src="/images/guessThe.png" class="glowing-image" />
+        <img src="/images/guessThe.png" class="glowing-image " />
         </div>
         <!-- <div class="flex flex-row justify-center">
           <h2 class="shadow-right">GUESS</h2>
@@ -41,8 +42,8 @@
     <!-- /A Game by ern/ -->
 
     <!-- Game screen -->
-    <div id="game-screen">
-      <main class="w-full">
+    <div class="w-full h-full" id="game-screen">
+      <main class="w-full h-full">
         <header
           class="flex flex-row justify-between items-center w-full p-8 px-16"
         >
@@ -56,11 +57,11 @@
             <h3 class="arcade text-white text-2xl" id="score">0</h3>
           </div>
         </header>
-        <section>
-          <div class="arcade text-white text-2xl question">
-            <p class="question-text"></p>
+        <section class="w-full h-full flex flex-col justify-content ">
+          <div class="arcade text-white text-2xl  flex flex-col justify-center ">
+            <p class="question-text flex justify-center"></p>
             <img
-              class="question-img"
+              class="question-img max-w-[50%] flex justify-center"
               src=""
               alt="question image"
               style="display: none"
@@ -86,8 +87,7 @@
 
               <img src="" />
             </div>
-            <div class="mode-expert">
-
+            <div id="expert-mode">
               <form>
                 <input type="text" id="guess-input">
               </form>
@@ -96,7 +96,7 @@
         </section>
         <div id="lottie-container"></div>
         <button
-          class="arcade text-white text-2xl next glow-button p-10"
+          class="arcade text-white text-2xl next glow-button p-10 mt-10"
           id="next"
         >
           Next
