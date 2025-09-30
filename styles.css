@@ -124,11 +124,13 @@ body {
   animation: pulseGlow 2s infinite alternate; /* pulsing glow applied */
 
   margin-top: 3rem; /* space from element above */
+  margin-bottom: 3rem; /* space from element above */
 }
 
 .secondary-button:hover {
   background-color: rgba(217, 176, 255, 0.6);
   color: rgb(240, 240, 240);
+  transform: scale(1.2);
   box-shadow: 0 0 0.8em 0.1em var(--glow-color),
     inset 0 0 0.75em 0.25em var(--glow-color);
 }
@@ -136,6 +138,39 @@ body {
 .secondary-button:active {
   transform: scale(0.97);
   box-shadow: 0 0 0.3em 0.05em var(--glow-color) inset;
+}
+
+.secondary-button-img {
+  --glow-color: rgb(217, 176, 255);
+  --glow-spread-color: rgba(191, 123, 255, 0.781);
+  --btn-color: rgba(50, 50, 50, 0.5); /* dark background */
+  --text-color: rgb(220, 220, 220); /* light text */
+
+  display: inline-block;
+
+  font-weight: bold;
+  font-size: 1.25rem; /* matches text-2xl */
+  color: var(--text-color);
+  background-color: var(--btn-color);
+  border: 0.15em solid var(--glow-color);
+  border-radius: 0.75em;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0.8em 0.1em var(--glow-color),
+    inset 0 0 0.75em 0.25em var(--glow-color);
+  animation: pulseGlow 2s infinite alternate; /* pulsing glow applied */
+
+  margin-top: 3rem; /* space from element above */
+  margin-bottom: 3rem; /* space from element above */
+}
+
+.secondary-button-img:hover {
+  background-color: rgba(217, 176, 255, 0.6);
+  color: rgb(240, 240, 240);
+  transform: scale(1.5);
+  box-shadow: 0 0 0.8em 0.1em var(--glow-color),
+    inset 0 0 0.75em 0.25em var(--glow-color);
 }
 
 /* Keyframes for pulsing glow */

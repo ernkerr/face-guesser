@@ -147,14 +147,17 @@ function roundGenerator() {
       // set the image src to the URL found in the filteredOptions array at optionIndex
 
       img.setAttribute("src", option.source);
+      img.classList.add("secondary-button-img");
       // store the index of this img as a data atribute on the <img>
       img.dataset.index = optionIndex; // store index for clicks
       name.style.display = "none";
     } else if (mode === "normal") {
       name.textContent = `${option.name}`;
       name.dataset.index = optionIndex; // store index for clicks
+      img.classList.remove("secondary-button-img");
     } else {
       name.style.display = "none";
+      img.classList.remove("secondary-button-img");
     }
 
     // console.log("Option index", optionIndex);
@@ -183,9 +186,10 @@ function checkGuess(guessIndex) {
 
 // <input type="text" id="guess-input" />;
 function checkExpertGuess() {
-  let guess = getElementById("guess-input");
-  console.log("guess", guess);
-  console.log("Answer:", answer.name);
+  let guess = document.getElementById("guess-input");
+  let answer = filteredOptions[answerIndex].name;
+  if (guess === answer) {
+  }
 }
 
 // ======= SCORE HANDLER =======
