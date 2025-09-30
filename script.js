@@ -10,7 +10,7 @@ await initAnimations(); // preload JSONs
 const options = [
   { name: "Martin Garrix", source: "images/martin_garrix.png", category: "dj" },
   { name: "David Guetta", source: "images/david_guetta.png", category: "dj" },
-  { name: "Alok", source: "images/alok.png", category: "dj" },
+  { name: "    Alok   ", source: "images/alok.png", category: "dj" },
   { name: "Fred Again", source: "images/fred_again.png", category: "dj" },
   { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
@@ -44,9 +44,19 @@ let rounds = 0;
 let answerIndex;
 
 // ======= MODE =======
+
+const expertModeContainer = document.getElementById("expert-mode");
+
 const modes = ["easy", "normal", "expert"];
 let mode = "normal";
+
+// initialize mode text
 modeBtn.textContent = `Mode: ${mode}`;
+
+// hide input + next button by defaultv
+expertModeContainer.style.display = "none";
+nextBtn.style.display = "none";
+
 modeBtn.addEventListener("click", switchMode);
 
 function switchMode() {
@@ -58,19 +68,32 @@ function switchMode() {
 
   // update mode
   mode = modes[nextIndex];
-  // Optional: update button text or log it
+  // update button text
   modeBtn.textContent = `Mode: ${mode}`;
+  //  log it
   console.log("Mode switched to:", mode);
+
+  if (mode !== "expert") {
+    expertModeContainer.style.display = "none";
+    nextBtn.style.display = "none";
+  } else {
+    expertModeContainer.style.display = "block";
+    nextBtn.style.display = "block";
+  }
 }
 
-// the input should be hidden by default unless it's expert mode, then it should be visible
-document.getElementById("expert-mode").style.display = "none";
+// // the input & next btn should be hidden by default unless it's expert mode, then it should be visible
+// document.getElementById("expert-mode").style.display = "none";
+// nextBtn.style.display = "none";
 
 // ======= CATEGORY =======
-let category = "dj";
 // let categoryTitle = category.toUpperCase();
 // document.getElementById("category").textContent = `${categoryTitle}`;
-// P2: let user select a category
+// P2: let user select a category (must be logged in error toast)
+// if they are logged in then they can switch the category like they can switch the mode
+// get that user's category: artist, rapper,  country singer, etc.
+
+let category = "dj";
 
 let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
 
@@ -93,13 +116,13 @@ function roundGenerator() {
 
   // Set the question
   const questionText = document.querySelector(".question-text");
-  const questionImg = document.querySelector(".question-img");
+  const questionImg = document.getElementById("question-img");
 
   if (mode === "easy") {
     // Show text only
     questionText.textContent = `Who is ${answer.name}?`;
     questionImg.style.display = "none"; // hide image
-  } else if (mode === "normal") {
+  } else {
     // Show text + image
     questionText.textContent = `Who is this?`;
     questionImg.src = answer.source;
@@ -126,9 +149,12 @@ function roundGenerator() {
       img.setAttribute("src", option.source);
       // store the index of this img as a data atribute on the <img>
       img.dataset.index = optionIndex; // store index for clicks
+      name.style.display = "none";
     } else if (mode === "normal") {
       name.textContent = `${option.name}`;
       name.dataset.index = optionIndex; // store index for clicks
+    } else {
+      name.style.display = "none";
     }
 
     // console.log("Option index", optionIndex);
@@ -155,6 +181,13 @@ function checkGuess(guessIndex) {
   }
 }
 
+// <input type="text" id="guess-input" />;
+function checkExpertGuess() {
+  let guess = getElementById("guess-input");
+  console.log("guess", guess);
+  console.log("Answer:", answer.name);
+}
+
 // ======= SCORE HANDLER =======
 
 function updateScore(points) {
@@ -172,6 +205,10 @@ function updateScore(points) {
 
 function handleNext() {
   console.log("Next Clicked");
+  // handle guess for expert mode
+  if (mode === "expert") {
+    checkExpertGuess();
+  }
   rounds += 1;
   roundGenerator();
 }
@@ -213,3 +250,13 @@ gridItems.forEach((gridItem) => {
     }
   });
 });
+
+// ======= P2 =======
+// Allow people to login with spotify
+// categories (user's genres)
+
+// “Who’s this?” style AR/Instagram/TikTok effect, where a DJ or celebrity’s image hovers over someone’s forehead while they record themselves reacting
+// Webcam video feed – get live camera input from the user.
+// Face detection / tracking – figure out where the forehead is so you can place the image correctly.
+// Overlay image – show the DJ/celebrity image “on top” of the person’s forehead.
+// Optional: record the video and allow sharing to social media.
