@@ -1,4 +1,4 @@
-// Title Screen
+import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
 
 import { generateRandomSet } from "./utils/generateRandomSet.js";
 import { initAnimations, playAnimation } from "./animations.js";
@@ -10,18 +10,17 @@ await initAnimations(); // preload JSONs
 const options = [
   { name: "Martin Garrix", source: "images/martin_garrix.png", category: "dj" },
   { name: "David Guetta", source: "images/david_guetta.png", category: "dj" },
-  { name: "    Alok   ", source: "images/alok.png", category: "dj" },
-  { name: "Fred Again", source: "images/fred_again.png", category: "dj" },
+  { name: "Alok", source: "images/alok.png", category: "dj" },
+  { name: "Fred Again...", source: "images/fred_again.png", category: "dj" },
   { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
-
-// title screen
 
 const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
 
 // ======= GAME SCREEN =======
+
 const gameScreen = document.getElementById("game-screen");
 gameScreen.style.display = "none";
 
@@ -30,13 +29,11 @@ startBtn.addEventListener("click", () => {
     titleScreen.style.display = "none"; // hide title screen
     gameScreen.style.display = "block"; // show game screen
     gameScreen.style.opacity = 1;
-    // Start first round
-    roundGenerator();
+    roundGenerator(); // start first round
   }, 500); // match the CSS transition time
 });
 
 const scoreDisplay = document.getElementById("score");
-const questionElement = document.querySelector(".question");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
 let score = 0;
@@ -45,46 +42,24 @@ let answerIndex;
 
 // ======= MODE =======
 
-const expertModeContainer = document.getElementById("expert-mode");
-
 const modes = ["easy", "normal", "expert"];
 let mode = "normal";
-
-// initialize mode text
-modeBtn.textContent = `Mode: ${mode}`;
-
-// hide input + next button by defaultv
-expertModeContainer.style.display = "none";
-nextBtn.style.display = "none";
-
+modeBtn.textContent = `Mode: ${mode}`; // initialize mode text
 modeBtn.addEventListener("click", switchMode);
 
+// hide input + next button by default
+const expertModeContainer = document.getElementById("expert-mode");
+expertModeContainer.style.display = "none";
+
 function switchMode() {
-  // get the current mode's index
-  const currentIndex = modes.indexOf(mode);
+  const currentIndex = modes.indexOf(mode); // get the current mode's index
+  const nextIndex = (currentIndex + 1) % modes.length; // get next index (wraps back to 0)
+  mode = modes[nextIndex]; // update mode
+  modeBtn.textContent = `Mode: ${mode}`; // update button text
 
-  // get next index (wraps back to 0)
-  const nextIndex = (currentIndex + 1) % modes.length;
-
-  // update mode
-  mode = modes[nextIndex];
-  // update button text
-  modeBtn.textContent = `Mode: ${mode}`;
-  //  log it
-  console.log("Mode switched to:", mode);
-
-  if (mode !== "expert") {
-    expertModeContainer.style.display = "none";
-    nextBtn.style.display = "none";
-  } else {
-    expertModeContainer.style.display = "block";
-    nextBtn.style.display = "block";
-  }
+  // if in expert mode, show the expert mode container
+  expertModeContainer.style.display = mode !== "expert" ? "none" : "block";
 }
-
-// // the input & next btn should be hidden by default unless it's expert mode, then it should be visible
-// document.getElementById("expert-mode").style.display = "none";
-// nextBtn.style.display = "none";
 
 // ======= CATEGORY =======
 // let categoryTitle = category.toUpperCase();
@@ -94,27 +69,26 @@ function switchMode() {
 // get that user's category: artist, rapper,  country singer, etc.
 
 let category = "dj";
-
 let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
 
 // ======= ROUND GENERATOR =======
 
 function roundGenerator() {
-  // reset
+  // reset round
   enableGuesses();
   gridItems.forEach((item) => item.classList.remove("correct-answer"));
 
-  // Generate 4 random unique numbers
+  // generate 4 random unique numbers
   const randomArray = Array.from(generateRandomSet(filteredOptions.length));
   // NOTE: Convert Set → Array so we can use index in forEach
   // Set.forEach does NOT provide an index (its callback is (value, valueAgain, set)),
   // so to loop with both value and index (value, index) we need Array.from().
 
-  // Choose one as the "answer"
+  // choose one as the "answer"
   answerIndex = randomArray[Math.floor(Math.random() * 4)];
   const answer = filteredOptions[answerIndex];
 
-  // Set the question
+  // set the question
   const questionText = document.querySelector(".question-text");
   const questionImg = document.getElementById("question-img");
 
@@ -128,9 +102,6 @@ function roundGenerator() {
     questionImg.src = answer.source;
     questionImg.style.display = "block"; // show image
   }
-  // else {
-  //   // show image + input
-  // }
 
   // Loop over the array of random indices for this round
   // optionIndex represents these values at each loop ex: [3, 0, 4, 2]
@@ -145,7 +116,6 @@ function roundGenerator() {
 
     if (mode === "easy") {
       // set the image src to the URL found in the filteredOptions array at optionIndex
-
       img.setAttribute("src", option.source);
       img.classList.add("secondary-button-img");
       // store the index of this img as a data atribute on the <img>
@@ -159,17 +129,12 @@ function roundGenerator() {
       name.style.display = "none";
       img.classList.remove("secondary-button-img");
     }
-
-    // console.log("Option index", optionIndex);
   });
 }
 
 // ======= GUESS HANDLER =======
 
 function checkGuess(guessIndex) {
-  //   console.log("guessIndex: ", guessIndex);
-  //   console.log("answerIndex: ", answerIndex);
-
   if (guessIndex === answerIndex) {
     playAnimation("correct");
     disableGuesses();
@@ -184,12 +149,53 @@ function checkGuess(guessIndex) {
   }
 }
 
-// <input type="text" id="guess-input" />;
+// different logic in expert mode
+
 function checkExpertGuess() {
-  let guess = document.getElementById("guess-input");
-  let answer = filteredOptions[answerIndex].name;
-  if (guess === answer) {
+  const guessElement = document.getElementById("guess-input");
+  const guess = guessElement.value.trim().toUpperCase();
+  const answer = filteredOptions[answerIndex].name.trim().toUpperCase();
+
+  // calculate a “fuzzy match score”
+  const fuse = new Fuse([{ name: answer }], {
+    keys: ["name"], // what property to search in
+    threshold: 0.4, // lower = stricter match, higher = fuzzier
+    ignoreLocation: true, // ignore position of match
+    minMatchCharLength: 1,
+    includeScore: true,
+  });
+  // runs the search will return a number from 0 - 1
+  const results = fuse.search(guess);
+  console.log("Results", results);
+
+  // Default fuzzyScore = 0 if no match
+  let fuzzyScore = 0;
+  if (results.length > 0 && typeof results[0].score === "number") {
+    fuzzyScore = 1 - results[0].score;
+    console.log("Fuzzy Score:", fuzzyScore.toFixed(2));
   }
+
+  const threshold = 0.7;
+  const minLengthRatio = 0.7; // must match at least 50% of the correct name length
+
+  if (
+    fuzzyScore >= threshold &&
+    guess.length / answer.length >= minLengthRatio
+  ) {
+    console.log("✅ Correct! Guess:", guess, "Answer:", answer);
+    playAnimation("correct");
+    updateScore(10);
+  } else {
+    console.log("❌ Incorrect. Guess:", guess, "Answer:", answer);
+    playAnimation("incorrect");
+  }
+
+  // reset input for the next round
+  guessElement.value = "";
+  // alt if fuzzy search doesn't work very well
+  // Levenshtein Distance Algorithm
+  // Jaro-Winkler Distance
+  // Soundex and Metaphone Algorithms
 }
 
 // ======= SCORE HANDLER =======
