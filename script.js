@@ -19,6 +19,14 @@ const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
 
+const scoreDisplay = document.getElementById("score");
+const gridItems = document.querySelectorAll(".grid-item");
+const nextBtn = document.getElementById("next");
+let score = 0;
+let lives = 3;
+let rounds = 0;
+let answerIndex;
+
 // ======= GAME SCREEN =======
 
 const gameScreen = document.getElementById("game-screen");
@@ -33,12 +41,24 @@ startBtn.addEventListener("click", () => {
   }, 500); // match the CSS transition time
 });
 
-const scoreDisplay = document.getElementById("score");
-const gridItems = document.querySelectorAll(".grid-item");
-const nextBtn = document.getElementById("next");
-let score = 0;
-let rounds = 0;
-let answerIndex;
+// ======= GAME OVER SCREEN =======
+
+const gameOverScreen = document.getElementById("game-over-screen");
+gameOverScreen.style.display = "none";
+
+function handleGameOver() {
+  // hide game screen
+  gameScreen.style.display = "none";
+  // show game over screen
+  const gameOverScreen = document.getElementById("game-over-screen");
+  gameOverScreen.style.display = "block";
+
+  // show score in center
+  // TODO: if highscore, ask for name
+  // try again
+
+  // TODO: reset lives
+}
 
 // ======= MODE =======
 
@@ -144,6 +164,7 @@ function checkGuess(guessIndex) {
     setTimeout(handleNext, 1000);
   } else {
     playAnimation("incorrect");
+    removeLife();
     disableGuesses();
     setTimeout(handleNext, 1000);
   }
@@ -188,6 +209,7 @@ function checkExpertGuess() {
   } else {
     console.log("❌ Incorrect. Guess:", guess, "Answer:", answer);
     playAnimation("incorrect");
+    removeLife();
   }
 
   // reset input for the next round
@@ -196,6 +218,17 @@ function checkExpertGuess() {
   // Levenshtein Distance Algorithm
   // Jaro-Winkler Distance
   // Soundex and Metaphone Algorithms
+}
+
+// ======= LIFE HANDLER =======
+function removeLife() {
+  console.log("-1 life");
+  lives -= 1;
+}
+
+function resetLives() {
+  console.log("Resetting lives..");
+  lives = 3;
 }
 
 // ======= SCORE HANDLER =======
@@ -215,6 +248,10 @@ function updateScore(points) {
 
 function handleNext() {
   console.log("Next Clicked");
+  if (lives === 0) {
+    console.log("Game Over");
+    handleGameOver();
+  }
   // handle guess for expert mode
   if (mode === "expert") {
     checkExpertGuess();
