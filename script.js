@@ -18,6 +18,7 @@ const options = [
 const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
+const gameOverScreen = document.getElementById("game-over-screen");
 
 const scoreDisplay = document.getElementById("score");
 const gridItems = document.querySelectorAll(".grid-item");
@@ -31,34 +32,17 @@ let answerIndex;
 
 const gameScreen = document.getElementById("game-screen");
 gameScreen.style.display = "none";
+gameOverScreen.style.display = "none";
 
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     titleScreen.style.display = "none"; // hide title screen
+    gameOverScreen.style.display = "none";
     gameScreen.style.display = "block"; // show game screen
     gameScreen.style.opacity = 1;
     roundGenerator(); // start first round
   }, 500); // match the CSS transition time
 });
-
-// ======= GAME OVER SCREEN =======
-
-const gameOverScreen = document.getElementById("game-over-screen");
-gameOverScreen.style.display = "none";
-
-function handleGameOver() {
-  // hide game screen
-  gameScreen.style.display = "none";
-  // show game over screen
-  const gameOverScreen = document.getElementById("game-over-screen");
-  gameOverScreen.style.display = "block";
-
-  // show score in center
-  // TODO: if highscore, ask for name
-  // try again
-
-  // TODO: reset lives
-}
 
 // ======= MODE =======
 
@@ -220,17 +204,6 @@ function checkExpertGuess() {
   // Soundex and Metaphone Algorithms
 }
 
-// ======= LIFE HANDLER =======
-function removeLife() {
-  console.log("-1 life");
-  lives -= 1;
-}
-
-function resetLives() {
-  console.log("Resetting lives..");
-  lives = 3;
-}
-
 // ======= SCORE HANDLER =======
 
 function updateScore(points) {
@@ -248,10 +221,6 @@ function updateScore(points) {
 
 function handleNext() {
   console.log("Next Clicked");
-  if (lives === 0) {
-    console.log("Game Over");
-    handleGameOver();
-  }
   // handle guess for expert mode
   if (mode === "expert") {
     checkExpertGuess();
@@ -261,6 +230,50 @@ function handleNext() {
 }
 
 nextBtn.addEventListener("click", handleNext);
+
+// ======= LIFE HANDLER =======
+function removeLife() {
+  console.log("-1 life");
+  lives -= 1;
+  const hearts = document.querySelectorAll(".heart");
+
+  // remove a heart
+  // If there’s a heart to remove, remove the last one visually
+  if (hearts[lives]) {
+    hearts[lives].style.opacity = "0.2"; // faded look
+    setTimeout(() => hearts[lives].remove(), 1000);
+    // OR you can completely remove it:
+    // hearts[lives].remove();
+  }
+
+  if (lives === 0) {
+    console.log("Game Over");
+    handleGameOver();
+  }
+}
+
+// ======= GAME OVER SCREEN =======
+
+function handleGameOver() {
+  // hide game screen
+  gameScreen.style.display = "none";
+  // show game over screen
+  gameOverScreen.style.display = "block";
+
+  // show score in center
+  // TODO: if highscore, ask for name
+  // try again
+
+  let tryAgainButton = document.getElementById("try-again");
+  tryAgainButton.addEventListener("click", handleReset);
+}
+
+function handleReset() {
+  console.log("resetting game");
+  lives = 3;
+  score = 0;
+  roundGenerator();
+}
 
 // ======= CLICK CONTROL =======
 function disableGuesses() {
