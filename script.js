@@ -2,6 +2,11 @@ import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
 
 import { generateRandomSet } from "./utils/generateRandomSet.js";
 import { initAnimations, playAnimation } from "./animations.js";
+import {
+  showGameScreen,
+  showGameOverScreen,
+  showTitleScreen,
+} from "./ui/screens.js";
 
 await initAnimations(); // preload JSONs
 
@@ -15,12 +20,8 @@ const options = [
   { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
 ];
 
-const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
-const gameOverScreen = document.getElementById("game-over-screen");
-gameOverScreen.style.display = "none";
-
 const scoreDisplay = document.getElementById("score");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
@@ -29,16 +30,17 @@ let lives = 3;
 let rounds = 0;
 let answerIndex;
 
-// ======= GAME SCREEN =======
-
-const gameScreen = document.getElementById("game-screen");
-gameScreen.style.display = "none";
+// =========================================
+// EVENT LISTENERS
+// =========================================
 
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
-    titleScreen.style.display = "none"; // hide title screen
-    gameScreen.style.display = "block"; // show game screen
-    gameScreen.style.opacity = 1;
+    showGameScreen();
+
+    // titleScreen.style.display = "none"; // hide title screen
+    // gameScreen.style.display = "block"; // show game screen
+    // gameScreen.style.opacity = 1;
     roundGenerator(); // start first round
   }, 500); // match the CSS transition time
 });
@@ -254,10 +256,7 @@ function removeLife() {
 // ======= GAME OVER SCREEN =======
 
 function handleGameOver() {
-  // hide game screen
-  gameScreen.style.display = "none";
-  // show game over screen
-  gameOverScreen.style.display = "block";
+  showGameOverScreen();
 
   // show score in center
   // TODO: if highscore, ask for name
