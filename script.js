@@ -1,7 +1,6 @@
-import { handleClickGuess, handleExpertGuess } from "./utils/guessHandler.js";
-
 import { roundGenerator } from "./utils/roundGenerator.js";
-import { initAnimations, playAnimation } from "./animations.js";
+import { handleClickGuess, handleExpertGuess } from "./utils/guessHandler.js";
+import { initAnimations, playAnimation } from "./ui/animations.js";
 import {
   showGameScreen,
   showGameOverScreen,
@@ -39,8 +38,20 @@ let modeBtn = document.getElementById("mode-btn");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
 
+// TODO: add gelatine animation to animations
+
+// ======= CATEGORY =======
+// let categoryTitle = category.toUpperCase();
+// document.getElementById("category").textContent = `${categoryTitle}`;
+// P2: let user select a category (must be logged in error toast)
+// if they are logged in then they can switch the category like they can switch the mode
+// get that user's category: artist, rapper,  country singer, etc.
+
+let category = "dj";
+let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
+
 // =========================================
-// EVENT LISTENERS
+// START GAME
 // =========================================
 
 startBtn.addEventListener("click", () => {
@@ -51,7 +62,7 @@ startBtn.addEventListener("click", () => {
 });
 
 // =========================================
-// MODE
+// MODE SWITCH
 // =========================================
 
 const modes = ["easy", "normal", "expert"];
@@ -73,116 +84,37 @@ function switchMode() {
     gameState.mode !== "expert" ? "none" : "block";
 }
 
-// ======= CATEGORY =======
-// let categoryTitle = category.toUpperCase();
-// document.getElementById("category").textContent = `${categoryTitle}`;
-// P2: let user select a category (must be logged in error toast)
-// if they are logged in then they can switch the category like they can switch the mode
-// get that user's category: artist, rapper,  country singer, etc.
-
-let category = "dj";
-let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
-
-// ======= GUESS HANDLER =======
-
-function checkGuess(guessIndex) {
-  if (guessIndex === gameState.answerIndex) {
-    updateScore(10); // updates gameState
-    updateScoreDisplay(gameState.score); // updates UI
-    playAnimation("correct");
-    disableGuesses();
-    setTimeout(handleNext, 1000);
-  } else {
-    playAnimation("incorrect");
-    removeLife();
-    removeHeart(gameState.lives);
-    disableGuesses();
-    setTimeout(handleNext, 1000);
-  }
-
-  if (gameState.lives === 0) {
-    console.log("Game Over");
-    handleGameOver();
-  }
-}
-
-// different logic in expert mode
-
-function checkExpertGuess() {
-  const guessElement = document.getElementById("guess-input");
-  const guess = guessElement.value.trim().toUpperCase();
-  const answer = filteredOptions[gameState.answerIndex].name
-    .trim()
-    .toUpperCase();
-
-  // calculate a “fuzzy match score”
-  const fuse = new Fuse([{ name: answer }], {
-    keys: ["name"], // what property to search in
-    threshold: 0.4, // lower = stricter match, higher = fuzzier
-    ignoreLocation: true, // ignore position of match
-    minMatchCharLength: 1,
-    includeScore: true,
+// =========================================
+// CLICK CONTROL
+// =========================================
+function disableGuesses() {
+  gridItems.forEach((gridItem) => {
+    const img = gridItem.querySelector("img");
+    img.style.pointerEvents = "none"; // block clicks
   });
-  // runs the search will return a number from 0 - 1
-  const results = fuse.search(guess);
-  console.log("Results", results);
-
-  // Default fuzzyScore = 0 if no match
-  let fuzzyScore = 0;
-  if (results.length > 0 && typeof results[0].score === "number") {
-    fuzzyScore = 1 - results[0].score;
-    console.log("Fuzzy Score:", fuzzyScore.toFixed(2));
-  }
-
-  const threshold = 0.7;
-  const minLengthRatio = 0.7; // must match at least 50% of the correct name length
-
-  if (
-    fuzzyScore >= threshold &&
-    guess.length / answer.length >= minLengthRatio
-  ) {
-    console.log("✅ Correct! Guess:", guess, "Answer:", answer);
-    playAnimation("correct");
-    updateScore(10);
-    updateScoreDisplay(gameState.score); // updates UI
-  } else {
-    console.log("❌ Incorrect. Guess:", guess, "Answer:", answer);
-    playAnimation("incorrect");
-    removeLife();
-    removeHeart(gameState.lives);
-  }
-
-  if (gameState.lives === 0) {
-    console.log("Game Over");
-    handleGameOver();
-  }
-
-  // reset input for the next round
-  guessElement.value = "";
-  // alt if fuzzy search doesn't work very well
-  // Levenshtein Distance Algorithm
-  // Jaro-Winkler Distance
-  // Soundex and Metaphone Algorithms
 }
 
-// ======= NEXT ROUND =======
+// =========================================
+// HANDLE NEXT ROUND
+// =========================================
 
 function handleNext() {
-  console.log("Next Clicked");
-  // handle guess for expert mode
+  //
+  // expert mode handles input differently
   if (gameState.mode === "expert") {
     checkExpertGuess();
   }
-  gameState.answerIndex = roundGenerator(
-    filteredOptions,
-    gameState.mode,
-    gridItems
-  );
+
+  // generate new round
+  setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems));
 }
 
+// attach next button
 nextBtn.addEventListener("click", handleNext);
 
-// ======= GAME OVER SCREEN =======
+// =========================================
+// GAME OVER SCREEN
+// =========================================
 
 function handleGameOver() {
   showGameOverScreen();
@@ -192,18 +124,35 @@ function handleGameOver() {
   // try again
 
   let tryAgainButton = document.getElementById("try-again");
-  tryAgainButton.addEventListener("click", handleReset);
-}
-
-// ======= CLICK CONTROL =======
-function disableGuesses() {
-  gridItems.forEach((gridItem) => {
-    const img = gridItem.querySelector("img");
-    img.style.pointerEvents = "none"; // block clicks
+  tryAgainButton.addEventListener("click", () => {
+    location.reload(); // simple reset for now
   });
 }
 
-// ======= INITIALIZATION =======
+// =========================================
+// EXPERT MODE GUESS
+// =========================================
+
+// different logic in expert mode
+function checkExpertGuess() {
+  const guessElement = document.getElementById("guess-input");
+  const userGuess = guessElement.value;
+  const correctAnswer = filteredOptions[gameState.answerIndex].name;
+
+  const correct = handleExpertGuess(userGuess, correctAnswer);
+
+  // If game over, show screen
+  if (gameState.lives === 0) {
+    handleGameOver();
+  }
+  // reset input for the next round
+  guessElement.value = "";
+  return correct;
+}
+
+// =========================================
+// GRID ITEM CLICK HANDLER
+// =========================================
 
 gridItems.forEach((gridItem) => {
   gridItem.addEventListener("click", (event) => {
@@ -218,18 +167,20 @@ gridItems.forEach((gridItem) => {
       void gridItem.offsetWidth; // force reflow
       gridItem.classList.add("gelatine"); // re-add
 
+      disableGuesses();
+
       // run your guess check logic
-      checkGuess(guessIndex);
+      // handle click guess will return a true or false
+      // if you want to use it in the future
+      // const correct = handleClickGuess(guessIndex, gameState.answerIndex);
+      handleClickGuess(guessIndex, gameState.answerIndex);
+
+      // If game over, show screen, else go to next round
+      if (gameState.lives === 0) {
+        handleGameOver();
+      } else {
+        setTimeout(handleNext, 1000);
+      }
     }
   });
 });
-
-// ======= P2 =======
-// Allow people to login with spotify
-// categories (user's genres)
-
-// “Who’s this?” style AR/Instagram/TikTok effect, where a DJ or celebrity’s image hovers over someone’s forehead while they record themselves reacting
-// Webcam video feed – get live camera input from the user.
-// Face detection / tracking – figure out where the forehead is so you can place the image correctly.
-// Overlay image – show the DJ/celebrity image “on top” of the person’s forehead.
-// Optional: record the video and allow sharing to social media.
