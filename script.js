@@ -20,6 +20,7 @@ import {
   updateQuestion,
   removeHeart,
 } from "../ui/updater.js";
+import { loginWithSpotify } from "./auth/supabase.js";
 
 await initAnimations(); // preload JSONs
 
@@ -39,6 +40,10 @@ const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
 
 // TODO: add gelatine animation to animations
+
+// User clicks “Login with Spotify”
+const spotifyButton = document.getElementById("spotify-button");
+spotifyButton.addEventListener("click", loginWithSpotify);
 
 // ======= CATEGORY =======
 // let categoryTitle = category.toUpperCase();
