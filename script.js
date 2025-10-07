@@ -1,4 +1,4 @@
-import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
+import { handleClickGuess, handleExpertGuess } from "./utils/guessHandler.js";
 
 import { roundGenerator } from "./utils/roundGenerator.js";
 import { initAnimations, playAnimation } from "./animations.js";
@@ -7,6 +7,20 @@ import {
   showGameOverScreen,
   showTitleScreen,
 } from "./ui/screens.js";
+import {
+  gameState,
+  updateScore,
+  removeLife,
+  resetGame,
+  setMode,
+  setAnswerIndex,
+  addRound,
+} from "./utils/gameState.js";
+import {
+  updateScoreDisplay,
+  updateQuestion,
+  removeHeart,
+} from "../ui/updater.js";
 
 await initAnimations(); // preload JSONs
 
@@ -22,13 +36,8 @@ const options = [
 
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
-const scoreDisplay = document.getElementById("score");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
-let score = 0;
-let lives = 3;
-let rounds = 0;
-let answerIndex;
 
 // =========================================
 // EVENT LISTENERS
@@ -37,11 +46,7 @@ let answerIndex;
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     showGameScreen();
-
-    // titleScreen.style.display = "none"; // hide title screen
-    // gameScreen.style.display = "block"; // show game screen
-    // gameScreen.style.opacity = 1;
-    answerIndex = roundGenerator(filteredOptions, mode, gridItems); // start first round
+    setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems)); // start first round
   }, 500); // match the CSS transition time
 });
 
@@ -50,8 +55,7 @@ startBtn.addEventListener("click", () => {
 // =========================================
 
 const modes = ["easy", "normal", "expert"];
-let mode = "normal";
-modeBtn.textContent = `Mode: ${mode}`; // initialize mode text
+modeBtn.textContent = `Mode: ${gameState.mode}`; // initialize mode text
 modeBtn.addEventListener("click", switchMode);
 
 // hide input + next button by default
@@ -59,13 +63,14 @@ const expertModeContainer = document.getElementById("expert-mode");
 expertModeContainer.style.display = "none";
 
 function switchMode() {
-  const currentIndex = modes.indexOf(mode); // get the current mode's index
+  const currentIndex = modes.indexOf(gameState.mode); // get the current mode's index
   const nextIndex = (currentIndex + 1) % modes.length; // get next index (wraps back to 0)
-  mode = modes[nextIndex]; // update mode
-  modeBtn.textContent = `Mode: ${mode}`; // update button text
+  gameState.mode = modes[nextIndex]; // update mode
+  modeBtn.textContent = `Mode: ${gameState.mode}`; // update button text
 
   // if in expert mode, show the expert mode container
-  expertModeContainer.style.display = mode !== "expert" ? "none" : "block";
+  expertModeContainer.style.display =
+    gameState.mode !== "expert" ? "none" : "block";
 }
 
 // ======= CATEGORY =======
@@ -81,18 +86,23 @@ let filteredOptions = options.filter((option) => option.category === category); 
 // ======= GUESS HANDLER =======
 
 function checkGuess(guessIndex) {
-  if (guessIndex === answerIndex) {
+  if (guessIndex === gameState.answerIndex) {
+    updateScore(10); // updates gameState
+    updateScoreDisplay(gameState.score); // updates UI
     playAnimation("correct");
     disableGuesses();
-    console.log("Correct!");
-    updateScore(10);
-
     setTimeout(handleNext, 1000);
   } else {
     playAnimation("incorrect");
     removeLife();
+    removeHeart(gameState.lives);
     disableGuesses();
     setTimeout(handleNext, 1000);
+  }
+
+  if (gameState.lives === 0) {
+    console.log("Game Over");
+    handleGameOver();
   }
 }
 
@@ -101,7 +111,9 @@ function checkGuess(guessIndex) {
 function checkExpertGuess() {
   const guessElement = document.getElementById("guess-input");
   const guess = guessElement.value.trim().toUpperCase();
-  const answer = filteredOptions[answerIndex].name.trim().toUpperCase();
+  const answer = filteredOptions[gameState.answerIndex].name
+    .trim()
+    .toUpperCase();
 
   // calculate a “fuzzy match score”
   const fuse = new Fuse([{ name: answer }], {
@@ -132,10 +144,17 @@ function checkExpertGuess() {
     console.log("✅ Correct! Guess:", guess, "Answer:", answer);
     playAnimation("correct");
     updateScore(10);
+    updateScoreDisplay(gameState.score); // updates UI
   } else {
     console.log("❌ Incorrect. Guess:", guess, "Answer:", answer);
     playAnimation("incorrect");
     removeLife();
+    removeHeart(gameState.lives);
+  }
+
+  if (gameState.lives === 0) {
+    console.log("Game Over");
+    handleGameOver();
   }
 
   // reset input for the next round
@@ -146,53 +165,22 @@ function checkExpertGuess() {
   // Soundex and Metaphone Algorithms
 }
 
-// ======= SCORE HANDLER =======
-
-function updateScore(points) {
-  score += points;
-
-  // animation
-  scoreDisplay.classList.remove("gelatine"); // reset
-  void scoreDisplay.offsetWidth; // force reflow (hack so browser sees the removal)
-  scoreDisplay.classList.add("gelatine"); // re-add so animation runs again
-
-  scoreDisplay.textContent = score;
-}
-
 // ======= NEXT ROUND =======
 
 function handleNext() {
   console.log("Next Clicked");
   // handle guess for expert mode
-  if (mode === "expert") {
+  if (gameState.mode === "expert") {
     checkExpertGuess();
   }
-  rounds += 1;
-  answerIndex = roundGenerator(filteredOptions, mode, gridItems);
+  gameState.answerIndex = roundGenerator(
+    filteredOptions,
+    gameState.mode,
+    gridItems
+  );
 }
 
 nextBtn.addEventListener("click", handleNext);
-
-// ======= LIFE HANDLER =======
-function removeLife() {
-  console.log("-1 life");
-  lives -= 1;
-  const hearts = document.querySelectorAll(".heart");
-
-  // remove a heart
-  // If there’s a heart to remove, remove the last one visually
-  if (hearts[lives]) {
-    hearts[lives].style.opacity = "0.2"; // faded look
-    setTimeout(() => hearts[lives].remove(), 1000);
-    // OR you can completely remove it:
-    // hearts[lives].remove();
-  }
-
-  if (lives === 0) {
-    console.log("Game Over");
-    handleGameOver();
-  }
-}
 
 // ======= GAME OVER SCREEN =======
 
@@ -205,14 +193,6 @@ function handleGameOver() {
 
   let tryAgainButton = document.getElementById("try-again");
   tryAgainButton.addEventListener("click", handleReset);
-}
-
-function handleReset() {
-  console.log("resetting game");
-  lives = 3;
-  score = 0;
-  showGameScreen();
-  answerIndex = roundGenerator(filteredOptions, mode, gridItems);
 }
 
 // ======= CLICK CONTROL =======
