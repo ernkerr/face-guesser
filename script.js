@@ -19,6 +19,7 @@ const titleScreen = document.getElementById("title-screen");
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
 const gameOverScreen = document.getElementById("game-over-screen");
+gameOverScreen.style.display = "none";
 
 const scoreDisplay = document.getElementById("score");
 const gridItems = document.querySelectorAll(".grid-item");
@@ -32,12 +33,10 @@ let answerIndex;
 
 const gameScreen = document.getElementById("game-screen");
 gameScreen.style.display = "none";
-gameOverScreen.style.display = "none";
 
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     titleScreen.style.display = "none"; // hide title screen
-    gameOverScreen.style.display = "none";
     gameScreen.style.display = "block"; // show game screen
     gameScreen.style.opacity = 1;
     roundGenerator(); // start first round

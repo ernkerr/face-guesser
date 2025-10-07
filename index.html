@@ -16,7 +16,6 @@
         src="/images/guessThe.png"
         class="glowing-image sm:max-w-2xs md:max-w-s"
       />
-      <!-- <img src="/images/guessThe.png" class="glowing-image max-w-s" /> -->
       <div class="flex justify-center flex-col items-center gap-20 w-1/2">
         <button
           class="arcade glow-button text-white p-3 px-6 md:p-4 md:px-12 text-xs w-full"
@@ -39,92 +38,103 @@
     <!-- /A Game by ern/ -->
 
     <!-- Game screen -->
-    <div class="" id="game-screen">
-      <main class="">
-        <header
-          class="flex flex-row justify-between items-center w-full p-8 px-16"
-        >
-          <img
-            src="/images/guessThe.png"
-            class="glowing-image-small w-[200px]"
-          />
-
-          <div class="flex flex-row items-center">
-            <h3 class="arcade text-white text-2xl">score:</h3>
-            <h3 class="arcade text-white text-2xl" id="score">0</h3>
-          </div>
-        </header>
-        <section
-          class="w-full h-full flex flex-col justify-center items-center"
-        >
-          <!-- question  -->
-          <div
-            class="arcade text-white text-2xl flex flex-col justify-center max-h-[30vh] gap-10"
+    <main class="">
+        <div class="" id="game-screen">
+          <header
+            class="flex flex-row justify-between items-center w-full p-8 px-16 gap-6"
           >
-            <p class="question-text flex justify-center mb-6"></p>
-            <img
-              class="max-h-[30vh] w-auto object-contain rounded-md"
-              id="question-img"
-              src=""
-              alt="question image"
-              style="display: none"
-            />
-          </div>
-          <div class="grid-container">
-            <div class="grid-item">
-              <p class="arcade text-white text-xl name secondary-button"></p>
-              <img src="" />
-            </div>
-            <div class="grid-item">
-              <p class="arcade text-white text-xl name secondary-button"></p>
+              <img
+                src="/images/guessThe.png"
+                class="glowing-image-small w-[200px]"
+              />
+          
 
-              <img src="" />
+            <!-- // todo make sure these don't move and position them in the top -->
+            <div class="lives flex flex-row gap-2">
+              <img class="heart" src="/images/heart.png" width="50" />
+              <img class="heart" src="/images/heart.png" width="50" />
+              <img class="heart" src="/images/heart.png" width="50" />
             </div>
-            <div class="grid-item">
-              <p class="arcade text-white text-xl name secondary-button"></p>
 
-              <img src="" />
+            <div class="flex flex-row items-center">
+              <h3 class="arcade text-white text-2xl">score:</h3>
+              <h3 class="arcade text-white text-2xl" id="score">0</h3>
             </div>
-            <div class="grid-item">
-              <p class="arcade text-white text-xl name secondary-button"></p>
+          </header>
 
-              <img src="" class="secondary-button-img" />
-            </div>
-          </div>
-          <div
-            class="flex flex-col justify-center items-center"
-            id="expert-mode"
+          <section
+            class="w-full h-full flex flex-col justify-center items-center"
           >
-            <input
-              type="text"
-              id="guess-input"
-              class="arcade secondary-button flex justify-center items-center text-center"
-            />
-            <button
-              class="arcade text-white text-3xl glow-button w-full mx-auto flex justify-center items-center"
-              id="next"
+            <!-- question  -->
+            <div
+              class="arcade text-white text-2xl flex flex-col justify-center max-h-[30vh] gap-10"
             >
-              Next
-            </button>
+              <p class="question-text flex justify-center mb-6"></p>
+              <img
+                class="max-h-[30vh] w-auto object-contain rounded-md"
+                id="question-img"
+                src=""
+                alt="question image"
+                style="display: none"
+              />
+            </div>
+            <div class="grid-container">
+              <div class="grid-item">
+                <p class="arcade text-white text-xl name secondary-button"></p>
+                <img src="" />
+              </div>
+              <div class="grid-item">
+                <p class="arcade text-white text-xl name secondary-button"></p>
+
+                <img src="" />
+              </div>
+              <div class="grid-item">
+                <p class="arcade text-white text-xl name secondary-button"></p>
+
+                <img src="" />
+              </div>
+              <div class="grid-item">
+                <p class="arcade text-white text-xl name secondary-button"></p>
+
+                <img src="" class="secondary-button-img" />
+              </div>
+            </div>
+            <div
+              class="flex flex-col justify-center items-center"
+              id="expert-mode"
+            >
+              <input
+                type="text"
+                id="guess-input"
+                class="arcade secondary-button flex justify-center items-center text-center"
+              />
+              <button
+                class="arcade text-white text-3xl glow-button w-full mx-auto flex justify-center items-center"
+                id="next"
+              >
+                Next
+              </button>
+            </div>
+          </section>
+        </div>
           </div>
-          <!-- Game screen -->
-          <div class="" id="game-over-screen">
-            <h2>Game Over</h2>
-            <button id="try-again">Try Again</button>
+        <!-- Game Over Screen -->
+        <div class="flex flex-col justify-center items-center w-full gap-20" id="game-over-screen">
+          <div class="flex justify-center flex-col items-center gap-20">
+              <h2 class="arcade text-white text-2xl p-3 ">Game Over</h2>
+
+          <button
+             class="arcade glow-button text-white p-3 px-6 md:p-4 md:px-12 text-xs w-1/2"
+            id="try-again"
+          >
+            Try Again
+          </button>
           </div>
-        </section>
+        </div>
         <div id="lottie-container"></div>
       </main>
+      <script type="module" src="script.js"></script>
     </div>
-
-    <script type="module" src="script.js"></script>
-
-    <!-- 
-    
-  
-  
-  
-  / -->
   </body>
 </html>
 
