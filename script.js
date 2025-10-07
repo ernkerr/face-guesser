@@ -1,6 +1,6 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
 
-import { generateRandomSet } from "./utils/generateRandomSet.js";
+import { roundGenerator } from "./utils/roundGenerator.js";
 import { initAnimations, playAnimation } from "./animations.js";
 import {
   showGameScreen,
@@ -45,7 +45,9 @@ startBtn.addEventListener("click", () => {
   }, 500); // match the CSS transition time
 });
 
-// ======= MODE =======
+// =========================================
+// MODE
+// =========================================
 
 const modes = ["easy", "normal", "expert"];
 let mode = "normal";
@@ -78,64 +80,64 @@ let filteredOptions = options.filter((option) => option.category === category); 
 
 // ======= ROUND GENERATOR =======
 
-function roundGenerator() {
-  // reset round
-  enableGuesses();
-  gridItems.forEach((item) => item.classList.remove("correct-answer"));
+// function roundGenerator() {
+//   // reset round
+//   enableGuesses();
+//   gridItems.forEach((item) => item.classList.remove("correct-answer"));
 
-  // generate 4 random unique numbers
-  const randomArray = Array.from(generateRandomSet(filteredOptions.length));
-  // NOTE: Convert Set → Array so we can use index in forEach
-  // Set.forEach does NOT provide an index (its callback is (value, valueAgain, set)),
-  // so to loop with both value and index (value, index) we need Array.from().
+//   // generate 4 random unique numbers
+//   const randomArray = Array.from(generateRandomSet(filteredOptions.length));
+//   // NOTE: Convert Set → Array so we can use index in forEach
+//   // Set.forEach does NOT provide an index (its callback is (value, valueAgain, set)),
+//   // so to loop with both value and index (value, index) we need Array.from().
 
-  // choose one as the "answer"
-  answerIndex = randomArray[Math.floor(Math.random() * 4)];
-  const answer = filteredOptions[answerIndex];
+//   // choose one as the "answer"
+//   answerIndex = randomArray[Math.floor(Math.random() * 4)];
+//   const answer = filteredOptions[answerIndex];
 
-  // set the question
-  const questionText = document.querySelector(".question-text");
-  const questionImg = document.getElementById("question-img");
+//   // set the question
+//   const questionText = document.querySelector(".question-text");
+//   const questionImg = document.getElementById("question-img");
 
-  if (mode === "easy") {
-    // Show text only
-    questionText.textContent = `Who is ${answer.name}?`;
-    questionImg.style.display = "none"; // hide image
-  } else {
-    // Show text + image
-    questionText.textContent = `Who is this?`;
-    questionImg.src = answer.source;
-    questionImg.style.display = "block"; // show image
-  }
+//   if (mode === "easy") {
+//     // Show text only
+//     questionText.textContent = `Who is ${answer.name}?`;
+//     questionImg.style.display = "none"; // hide image
+//   } else {
+//     // Show text + image
+//     questionText.textContent = `Who is this?`;
+//     questionImg.src = answer.source;
+//     questionImg.style.display = "block"; // show image
+//   }
 
-  // Loop over the array of random indices for this round
-  // optionIndex represents these values at each loop ex: [3, 0, 4, 2]
-  // i represents the position in the grid (0, 1, 2, 3)
-  randomArray.forEach((optionIndex, i) => {
-    // Get the <img> element inside the corresponding grid item
-    // gridItems[i] is the <div class="grid-item"> at position i
-    const img = gridItems[i].querySelector("img");
-    const name = gridItems[i].querySelector("p");
+//   // Loop over the array of random indices for this round
+//   // optionIndex represents these values at each loop ex: [3, 0, 4, 2]
+//   // i represents the position in the grid (0, 1, 2, 3)
+//   randomArray.forEach((optionIndex, i) => {
+//     // Get the <img> element inside the corresponding grid item
+//     // gridItems[i] is the <div class="grid-item"> at position i
+//     const img = gridItems[i].querySelector("img");
+//     const name = gridItems[i].querySelector("p");
 
-    const option = filteredOptions[optionIndex];
+//     const option = filteredOptions[optionIndex];
 
-    if (mode === "easy") {
-      // set the image src to the URL found in the filteredOptions array at optionIndex
-      img.setAttribute("src", option.source);
-      img.classList.add("secondary-button-img");
-      // store the index of this img as a data atribute on the <img>
-      img.dataset.index = optionIndex; // store index for clicks
-      name.style.display = "none";
-    } else if (mode === "normal") {
-      name.textContent = `${option.name}`;
-      name.dataset.index = optionIndex; // store index for clicks
-      img.classList.remove("secondary-button-img");
-    } else {
-      name.style.display = "none";
-      img.classList.remove("secondary-button-img");
-    }
-  });
-}
+//     if (mode === "easy") {
+//       // set the image src to the URL found in the filteredOptions array at optionIndex
+//       img.setAttribute("src", option.source);
+//       img.classList.add("secondary-button-img");
+//       // store the index of this img as a data atribute on the <img>
+//       img.dataset.index = optionIndex; // store index for clicks
+//       name.style.display = "none";
+//     } else if (mode === "normal") {
+//       name.textContent = `${option.name}`;
+//       name.dataset.index = optionIndex; // store index for clicks
+//       img.classList.remove("secondary-button-img");
+//     } else {
+//       name.style.display = "none";
+//       img.classList.remove("secondary-button-img");
+//     }
+//   });
+// }
 
 // ======= GUESS HANDLER =======
 
