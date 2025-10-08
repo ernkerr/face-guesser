@@ -1,15 +1,42 @@
 <!DOCTYPE html>
-<html class="container">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
 
     <title>Guess The</title>
     <!-- <link rel="stylesheet" href="styles.css" /> -->
-    <link rel="icon" href="/favicon.ico" />
+    <!-- <link rel="icon" href="/favicon.ico" /> -->
 
     <link rel="stylesheet" href="./dist/output.css" />
   </head>
-  <body>
+  <body class="container flex flex-col min-h-screen min-w-screen relative text-white">
+    
+     <!-- User / Spotify login in top-right -->
+    <div class="absolute top-4 right-4">
+
+        <!-- Spotify login -->
+  <button id="spotify-btn" class="arcade flex items-center gap-2 glow-button-green">
+    <img
+      src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png"
+      alt="Spotify logo"
+      class="w-12 h-12 mr-4" />
+    Login with Spotify
+  </button>
+
+    <!-- User button (avatar + name) -->
+  <button id="user-btn" class="arcade flex items-center gap-2 glow-button-green hidden">
+    <img id="user-img" src="" alt="User profile picture" class="w-12 h-12 rounded-full" />
+    <span id="user-name"></span>
+  </button>
+
+
+        <!-- Hidden logout button -->
+  <button id="logout-btn" class="arcade glow-button-green mt-6 hidden" >
+    Log Out
+  </button>
+    </div>
+<!-- <button class="" id="logout-btn"></button> -->
+
     <!-- Title screen -->
     <div id="title-screen" class="flex flex-col justify-center items-center">
       <img
@@ -18,28 +45,21 @@
       />
       <div class="flex justify-center flex-col items-center gap-20 w-1/2">
         <button
-          class="arcade glow-button text-white p-3 px-6 md:p-4 md:px-12 text-xs w-full"
+          class="arcade glow-button  p-3 px-6 md:p-4 md:px-12 text-xs w-full"
           id="start-btn"
         >
           Start Game
         </button>
         <button
-          class="arcade glow-button text-white text-base sm:text-lg p-3 w-full"
+          class="arcade glow-button text-base sm:text-lg p-3 w-full"
           id="mode-btn"
         ></button>
         <button
-          class="arcade glow-button text-white text-base sm:text-lg p-3 w-full"
+          class="arcade glow-button text-base sm:text-lg p-3 w-full"
         >
           Category: DJ
         </button>
-        <button class=" arcade text-white" id="spotify-button">
-            <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png" 
-       alt="Spotify logo" 
-       style="width:24px;height:24px;margin-right:10px;">
-       Login with Spotify</button>
-        <!-- Use the Spotify “green” button or “Spotify Logo with text” for login.
 
-Don’t change the logo or colors. -->
       </div>
     </div>
 
@@ -65,8 +85,8 @@ Don’t change the logo or colors. -->
             </div>
 
             <div class="flex flex-row items-center">
-              <h3 class="arcade text-white text-2xl">score:</h3>
-              <h3 class="arcade text-white text-2xl" id="score">0</h3>
+              <h3 class="arcade  text-2xl">score:</h3>
+              <h3 class="arcade text-2xl" id="score">0</h3>
             </div>
           </header>
 
@@ -75,7 +95,7 @@ Don’t change the logo or colors. -->
           >
             <!-- question  -->
             <div
-              class="arcade text-white text-2xl flex flex-col justify-center max-h-[30vh] gap-10"
+              class="arcade  text-2xl flex flex-col justify-center max-h-[30vh] gap-10"
             >
               <p class="question-text flex justify-center mb-6"></p>
               <img
@@ -88,21 +108,21 @@ Don’t change the logo or colors. -->
             </div>
             <div class="grid-container">
               <div class="grid-item">
-                <p class="arcade text-white text-xl name secondary-button"></p>
+                <p class="arcade  text-xl name secondary-button"></p>
                 <img src="" />
               </div>
               <div class="grid-item">
-                <p class="arcade text-white text-xl name secondary-button"></p>
+                <p class="arcade text-xl name secondary-button"></p>
 
                 <img src="" />
               </div>
               <div class="grid-item">
-                <p class="arcade text-white text-xl name secondary-button"></p>
+                <p class="arcade  text-xl name secondary-button"></p>
 
                 <img src="" />
               </div>
               <div class="grid-item">
-                <p class="arcade text-white text-xl name secondary-button"></p>
+                <p class="arcade  text-xl name secondary-button"></p>
 
                 <img src="" class="secondary-button-img" />
               </div>
@@ -117,7 +137,7 @@ Don’t change the logo or colors. -->
                 class="arcade secondary-button flex justify-center items-center text-center"
               />
               <button
-                class="arcade text-white text-3xl glow-button w-full mx-auto flex justify-center items-center"
+                class="arcade  text-3xl glow-button w-full mx-auto flex justify-center items-center"
                 id="next"
               >
                 Next
@@ -125,14 +145,14 @@ Don’t change the logo or colors. -->
             </div>
           </section>
         </div>
-          </div>
+      
         <!-- Game Over Screen -->
         <div class="flex flex-col justify-center items-center w-full gap-20" id="game-over-screen">
           <div class="flex justify-center flex-col items-center gap-20">
-              <h2 class="arcade text-white text-2xl p-3 ">Game Over</h2>
+              <h2 class="arcade  text-2xl p-3 ">Game Over</h2>
 
           <button
-             class="arcade glow-button text-white p-3 px-6 md:p-4 md:px-12 text-xs w-1/2"
+             class="arcade glow-button p-3 px-6 md:p-4 md:px-12 text-xs w-1/2"
             id="try-again"
           >
             Try Again
@@ -142,6 +162,7 @@ Don’t change the logo or colors. -->
         <div id="lottie-container"></div>
       </main>
       <script type="module" src="script.js"></script>
+    </div>
     </div>
   </body>
 </html>

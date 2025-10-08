@@ -1,8 +1,14 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { updateUser, updateLogout } from "../ui/updater.js";
 
 const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
 const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Login handler
+document
+  .getElementById("spotify-btn")
+  .addEventListener("click", loginWithSpotify);
 
 export async function loginWithSpotify() {
   console.log("Login with spotify pressed");
@@ -23,18 +29,23 @@ export async function loginWithSpotify() {
   }
 }
 
+// Logout handler
+const logoutBtn = document.getElementById("logout-btn");
+logoutBtn.addEventListener("click", async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) console.error(error);
+  else updateLogout();
+});
+
 // detect login state after redirect
 supabase.auth.onAuthStateChange((event, session) => {
   if (session) {
-    console.log("User logged in!");
-    console.log("User info", session.user);
-    console.log("Spotify access token:", session.provider_token);
-    console.log(
-      "User's Profile Picture: ",
-      session.user.user_metadata.avatar_url
+    updateUser(
+      session.user.user_metadata.avatar_url,
+      session.user.user_metadata.full_name
     );
-    // update ui
-    // pass the
+  } else {
+    updateLogout();
   }
 });
 

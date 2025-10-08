@@ -42,8 +42,8 @@ const nextBtn = document.getElementById("next");
 // TODO: add gelatine animation to animations
 
 // User clicks “Login with Spotify”
-const spotifyButton = document.getElementById("spotify-button");
-spotifyButton.addEventListener("click", loginWithSpotify);
+const spotifyBtn = document.getElementById("spotify-btn");
+spotifyBtn.addEventListener("click", loginWithSpotify);
 
 // ======= CATEGORY =======
 // let categoryTitle = category.toUpperCase();

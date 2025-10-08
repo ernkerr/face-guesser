@@ -11,6 +11,12 @@
   font-family: "Arcade";
 }
 
+/* The Spotify icon should never be smaller than 21px */
+/* 70px */
+
+/* Spotify Branding  */
+/* Artwork corners must be rounded to create optical blending with nearby UI elements. Small & medium devices should use a 4px corner radius, whereas large devices should use a 8px corner radius. */
+
 html,
 body {
   height: 100vh;
@@ -18,17 +24,10 @@ body {
   margin: 0;
 }
 
-/* #title-screen,
-#game-screen {
-  transition: opacity 0.5s ease;
-} */
-
-/* across all screens  */
-
 /* background  */
 .container {
-  width: 100vw;
-  height: 100vh;
+  /* width: 100vw;
+  height: 100vh; */
 
   background: #000000;
   --gap: 5em;
@@ -101,6 +100,54 @@ body {
     inset 0 0 0.5em 0.25em var(--glow-color);
 }
 
+.glow-button-green {
+  --glow-color: rgb(30, 215, 96);
+  --glow-spread-color: rgba(30, 215, 96, 0.781);
+  --enhanced-glow-color: rgb(206, 255, 208);
+  --btn-color: rgb(15, 95, 41);
+  border: 0.25em solid var(--glow-color);
+  padding: 1em 3em;
+  color: var(--glow-color);
+  font-weight: bold;
+  background-color: var(--btn-color);
+  border-radius: 1em;
+  outline: none;
+  box-shadow: 0 0 1em 0.25em var(--glow-color),
+    0 0 4em 1em var(--glow-spread-color),
+    inset 0 0 0.75em 0.25em var(--glow-color);
+  text-shadow: 0 0 0.5em var(--glow-color);
+  position: relative;
+  transition: all 0.3s;
+}
+
+.glow-button-green::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 120%;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: var(--glow-spread-color);
+  filter: blur(2em);
+  opacity: 0.05;
+  transform: perspective(1.5em) rotateX(35deg) scale(1, 0.6);
+}
+
+.glow-button-green:hover {
+  color: var(--btn-color);
+  background-color: var(--glow-color);
+  transform: scale(1.2);
+  box-shadow: 0 0 1em 0.25em var(--glow-color),
+    0 0 4em 2em var(--glow-spread-color),
+    inset 0 0 0.75em 0.25em var(--glow-color);
+}
+
+.glow-button-green:active {
+  box-shadow: 0 0 0.6em 0.25em var(--glow-color),
+    0 0 2.5em 2em var(--glow-spread-color),
+    inset 0 0 0.5em 0.25em var(--glow-color);
+}
 /* secondary button */
 
 .secondary-button {
