@@ -21,25 +21,19 @@ import {
   removeHeart,
 } from "../ui/updater.js";
 import { loginWithSpotify } from "./auth/supabase.js";
-import { createCustomCategories } from "./categories/customCategories.js";
+import {
+  createCustomCategories,
+  filterArtists,
+} from "./categories/customCategories.js";
 
 await initAnimations(); // preload JSONs
-
-// MVP:
-// make database for people with name + image
-const options = [
-  { name: "Martin Garrix", source: "images/martin_garrix.png", category: "dj" },
-  { name: "David Guetta", source: "images/david_guetta.png", category: "dj" },
-  { name: "Alok", source: "images/alok.png", category: "dj" },
-  { name: "Fred Again...", source: "images/fred_again.png", category: "dj" },
-  { name: "Timmy Trumpet", source: "images/timmy_trumpet.png", category: "dj" },
-];
 
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
 let categoryBtn = document.getElementById("category-btn");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
+let filteredOptions;
 
 // TODO: add gelatine animation to animations
 
@@ -47,25 +41,13 @@ const nextBtn = document.getElementById("next");
 const spotifyBtn = document.getElementById("spotify-btn");
 spotifyBtn.addEventListener("click", loginWithSpotify);
 
-// ======= CATEGORY =======
-// let categoryTitle = category.toUpperCase();
-// document.getElementById("category").textContent = `${categoryTitle}`;
-// P2: let user select a category (must be logged in error toast)
-// if they are logged in then they can switch the category like they can switch the mode
-// get that user's category: artist, rapper,  country singer, etc.
-
-let category = gameState.category;
-
-let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
-// console.log("Filtered Options", filteredOptions);
 // =========================================
 // CATEGORIES
 // =========================================
-let categories = ["DJ", "1", "2"];
-// call the function
+
+let categories = ["DJ"];
 
 function getCustomCategories() {
-  console.log("Getting custon categories: ");
   let newCategories = createCustomCategories();
   console.log("New Categories: ", newCategories);
   categories = newCategories;
@@ -73,21 +55,13 @@ function getCustomCategories() {
 
 getCustomCategories();
 
-// function displayCustomCategories(newCategories) {
-//   console.log("Recieved custom categories", newCategories);
-//   categories.push(newCategories);
-//   console.log("New Categories added: ", categories);
-// }
-// displayCustomCategories(createCustomCategories);
-// push the custon categories here if they exist (if the user is logged in)
-
 categoryBtn.textContent = `Category: ${gameState.category}`;
 categoryBtn.addEventListener("click", switchCategory);
 
 function switchCategory() {
   const currentIndex = categories.indexOf(gameState.category); // get the current category's index
   const nextIndex = (currentIndex + 1) % categories.length; // get the next index (wrap back to 0)
-  gameState.category = categories[nextIndex]; // updates the category
+  gameState.category = categories[nextIndex]; // updates the category in game state
   categoryBtn.textContent = `Category: ${gameState.category}`;
 }
 
@@ -99,6 +73,11 @@ startBtn.addEventListener("click", () => {
   setTimeout(() => {
     showGameScreen();
     // generate filtered Options HERE
+    filteredOptions = filterArtists();
+    console.log(
+      "Filtered Artists passed to round generator: ",
+      filteredOptions
+    );
     setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems)); // start first round
   }, 500); // match the CSS transition time
 });

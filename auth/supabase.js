@@ -9,6 +9,8 @@ const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
 const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+let customGameGenerated = false; // flag to prevent multiple calls
+
 // Login handler
 document
   .getElementById("spotify-btn")
@@ -43,31 +45,33 @@ logoutBtn.addEventListener("click", async () => {
 
 // detect login state after redirect
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log("Session:", session);
+  // console.log("Session:", session);
   if (session) {
+    // Only run once per session
+    if (!customGameGenerated) {
+      generateCustomGame(session.provider_token);
+      customGameGenerated = true;
+    }
+
     updateUser(
       session.user.user_metadata.avatar_url,
       session.user.user_metadata.full_name
     );
-    // TODO
-    // here we should have some sort of logic for a user's custom categories
-    // we should pass in this provider_token to pass down to spotify functions
-    // but we should have something running in the background (analysis perhaps)
-    // that runs asynchronously?
-    generateCustomCategories(session.provider_token);
-  } else {
+  }
+  // TODO
+  // here we should have some sort of logic for a user's custom categories
+  // we should pass in this provider_token to pass down to spotify functions
+  // but we should have something running in the background (analysis perhaps)
+  // that runs asynchronously?
+  // generateTasteAnalysis
+  else {
     updateLogout();
+    customGameGenerated = false; // reset flag when user logs out
   }
 });
 
-function generateCustomCategories(token) {
-  console.log("Generate Custom Categories Called");
+function generateCustomGame(token) {
   fetchUserArtists(token);
-  console.log("Generate Custom Categories finished");
-  // step 1: fetch the user's artists
-  // step 2:
-  // getTopArtists(session.provider_token);
-  // getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
 }
 
 // // Usage

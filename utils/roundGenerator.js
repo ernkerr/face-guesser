@@ -48,7 +48,7 @@ function updateQuestionUI(answer, mode) {
   } else {
     // Show text + image
     questionText.textContent = `Who is this?`;
-    questionImg.src = answer.source;
+    questionImg.src = answer.images[0].url;
     questionImg.style.display = "block"; // show image
   }
 }
@@ -70,7 +70,9 @@ function populateGridUI(randomArray, filteredOptions, mode, gridItems) {
 
     if (mode === "easy") {
       // set the image src to the URL found in the filteredOptions array at optionIndex
-      img.setAttribute("src", option.source);
+      // option.images[0]
+      console.log("setting image to option.images[0]");
+      img.setAttribute("src", option.images[0].url);
       img.classList.add("secondary-button-img");
       // store the index of this img as a data atribute on the <img>
       img.dataset.index = optionIndex; // store index for clicks
