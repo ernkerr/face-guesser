@@ -1,6 +1,8 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { updateUser, updateLogout } from "../ui/updater.js";
-import getTopArtists from "../utils/fetchSpotifyData.js";
+
+import getSpotifyPlaylist from "../fetch/fetchSpotifyData.js";
+import getTopArtists from "../fetch/fetchSpotifyData.js";
 
 const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
 const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
@@ -51,11 +53,18 @@ supabase.auth.onAuthStateChange((event, session) => {
     // we should pass in this provider_token to pass down to spotify functions
     // but we should have something running in the background (analysis perhaps)
     // that runs asynchronously?
-    getTopArtists(session.provider_token);
+    generateCustomCategories(session.provider_token)
   } else {
     updateLogout();
   }
 });
+
+function generateCustomCategories(token){
+  // step 1: fetch the user's artists 
+  // step 2: 
+      getTopArtists(session.provider_token);
+      getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
+}
 
 // // Usage
 // getFavoriteColor(token)

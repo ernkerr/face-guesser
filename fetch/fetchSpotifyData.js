@@ -1,4 +1,29 @@
-// get spotify data
+// default data
+
+export async function getSpotifyPlaylist(token, playlist_id) {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlist_id}`,
+      {
+        method: "GET",
+        headers: `Bearer ${token}`,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("Error Getting Spotify Playlist", errorData);
+    }
+    // do something in the ui (playlist not avaliable, try again, etc.)
+
+    const data = await response.json();
+    console.log("Playlist Data:", data);
+  } catch (error) {
+    console.log("Error at getSpotifyPlaylist", error.message);
+  }
+}
+
+// get customized spotify data after logging in
 export default async function getTopArtists(token) {
   try {
     const response = await fetch(
