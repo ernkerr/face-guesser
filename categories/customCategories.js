@@ -4,6 +4,7 @@ import { defaultOptions } from "./defaultCategories.js";
 
 // in this array, we're going to add the results of each of the functions, essentially fetching all of the user's known artists
 const artists = {};
+let topArtistArray;
 
 export default async function fetchUserArtists(token) {
   // getTopArtists() returns an object
@@ -23,7 +24,7 @@ export default async function fetchUserArtists(token) {
   });
   // if you want an array of the user's top artists to also be stored in the artists object
   // this we can also use for analysis
-  artists.topArtists = topArtists;
+  topArtistArray = topArtists;
 
   console.log("Done fetching top artists: ", artists);
 
@@ -31,57 +32,111 @@ export default async function fetchUserArtists(token) {
   // But we can start other functions asynchronously since we have the top artists to start with
   // AIroaster(artists)
 
-  // step 1: fetch the user's artists
-  // step 2: getTopArtists(session.provider_token);
+  // Get total artists = top artists + saved artists + playlist artists (the playlists created by you)
+  // https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
+  // GET https://api.spotify.com/v1/me/tracks
   // getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
   // if not enough? then fetch the user's top listed to going back even further (offset 50?)
 
-  createCustomCategories(artists);
+  createCustomCategories();
 }
 
 // create the categories and add them to the list of categories
-// only filter when the user presses start game?
 
-export function createCustomCategories(artists) {
+export function createCustomCategories() {
   let availableCategories = [];
-
   availableCategories.push("Top Artists");
+
   // TODO: Logic for other categories
+  const genreCounts = {};
   // availableCategories.push("1");
   // availableCategories.push("2");
 
-  return availableCategories;
-}
+  //
 
-// filter artists based on custom categories
+  // loop through each artist in artist object and count how many times each genre appears
+  // Object.values(artists) returns an array of all the values in an object
+  // it allows us to directly loop over the value {name: "", genres: []} , not the key
+  // When you use for...in, artist will be the key ("001", "002", etc.), not the artist object.
+
+  for (const artist of Object.values(artists)) {
+    // artist is the actual artist object
+    //
+    // handle invalid artists
+    if (!artist || !artist.genres) {
+      console.warn("Skipping invalid artist:", artist);
+      continue; // ⬅ skip null/undefined ones
+    }
+    // genreless
+    if (artist.genres.length === 0) {
+      genreCounts["none"] = (genreCounts["none"] || 0) + 1;
+    } else {
+      // QUICK NOTE:
+      // for...in gives you keys or indices (the id or index)
+      // for..of gives you values
+      for (const genre of artist.genres) {
+        // use the variable genre as the key
+        // if the variable already exists, increment it, otherwise start at 0 and add 1 (so it becomes 1)
+        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+      }
+    }
+  }
+
+  // Object.entries() takes an object and turns it into an array of [key, value] pairs.
+  // .sort() sorts arrays in place.
+  // (a, b) are elements of the array, in this case [key, value] pairs.
+  // b[1] - a[1] means:
+  // b[1] is the value of the second element
+  // a[1] is the value of the first element
+  // Sorting in descending order (largest to smallest) because higher numbers come first.
+  // Object.fromEntries turns it into an object again
+  const sortedGenres = Object.fromEntries(
+    Object.entries(genreCounts).sort((a, b) => b[1] - a[1])
+  );
+  console.log("Sorted Genres", sortedGenres);
+  // if the genre has more than ~ 30 artists, create a category for it
+
+  return availableCategories;
+
+  // categories:
+  //
+  // 1. top artists (done)
+  //
+  // 2. liked songs (get from playlist)
+  //
+  // 3.
+  // by genre:
+
+  // you need to look at all the artists’ .genres arrays and count how many times each genre appears.
+  // . filter => artists.genre.includes("")
+  // look at the most popular genre to the least (make sure there are at least 30 artists?)
+  // no genre (if they have multiple artists with no genres);
+  //
+
+  //
+
+  // filter artists based on custom categories
+
+  // Category Ideas:
+  // Top Artists
+  // Genres [tech house, techno, rock, etc.]
+  // BPM over ${user's max BPM with at least 50? artists}
+  // Release Radar
+  // "Newly Discovered" → top artists from the last 2 weeks/months
+  // "Classic Favorites" → top artists over the long term
+}
 
 export function filterArtists() {
-  if (gameState.category === "DJ") {
-    console.log("initiate default game");
-    return defaultOptions;
-  } else {
-    console.log("filter artists called");
-    console.log("using topArtists for now");
-    // let category = gameState.category;
-    // category = "Top Artists"
-    // but I want to get the artists.topArtists
+  if (gameState.category === "DJ") return defaultOptions;
+  if (gameState.category === "Top Artists") return topArtistArray;
 
-    const filteredOptions = artists.topArtists;
-    console.log(Array.isArray(artists.topArtists));
-    console.log(typeof filteredOptions);
-    console.log("returning filtered options: ", filteredOptions);
-    return filteredOptions;
-  }
+  // let category = gameState.category;
+  // category = "Top Artists"
+  // but I want to get the artists.topArtists
+  // filtered Options should be an ARRAY
+
+  // return filteredOptions;
 }
-// create a function that will filter the artists based on the "category" in gameState
-// we want to return something that we can use
-// let filteredOptions: {
-//   name: string,
-//   source: string,
-//   category: string,
-// }[];
-// filteredOptions is an array of objects with "name", source: "the link to the image", and category?
-// filteredOptions: [{name: 'Fred Again...', source: 'images/fred_again.png', category: 'dj'}]
 
 // 0cmWgDlu9CwTgxPhf403hb
 // :
@@ -119,39 +174,11 @@ export function filterArtists() {
 // :
 // Object
 
-// First we call getTopArtists
-
-// export default function generateCustomCategories(token) {
-// 1. Get total artists = top artists + saved artists + playlist artists (the playlists created by you)
-// https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
-// GET https://api.spotify.com/v1/me/tracks
-//
-// function that will return allUserArtists
-//
-// 2.
-// from this list get their top genres (for genres that have more than 30 artists, )
-//
-// we want to return a list of all of the possible categories found
-// }
-
-// for each user we just want to get these values once.
-// We can store them locally? does it really matter how often this happens?
-
-// store them in a global variable we can return from a function?
-
 // ui
 // actually make custom categories it's own button (so they can still play generic ones)
 // Once logged in, split into two buttons
 // global // personal
 // global can be the default when no one's logged in play against others p2
-
-// Need some kind of logic for what kind of categories we could make
-
-// Category Ideas:
-// Top Artists
-// Genres [tech house, techno, rock, etc.]
-// BPM over ${user's max BPM with at least 50? artists}
-// Release Radar
 
 // P2: another button that comes up (from last 2 months, last 6 months, etc. pass in value for fetch url so they can see top artists from recently etc.)
 
