@@ -21,6 +21,7 @@ import {
   removeHeart,
 } from "../ui/updater.js";
 import { loginWithSpotify } from "./auth/supabase.js";
+import { createCustomCategories } from "./categories/customCategories.js";
 
 await initAnimations(); // preload JSONs
 
@@ -36,6 +37,7 @@ const options = [
 
 const startBtn = document.getElementById("start-btn");
 let modeBtn = document.getElementById("mode-btn");
+let categoryBtn = document.getElementById("category-btn");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
 
@@ -52,8 +54,42 @@ spotifyBtn.addEventListener("click", loginWithSpotify);
 // if they are logged in then they can switch the category like they can switch the mode
 // get that user's category: artist, rapper,  country singer, etc.
 
-let category = "dj";
+let category = gameState.category;
+
 let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
+// console.log("Filtered Options", filteredOptions);
+// =========================================
+// CATEGORIES
+// =========================================
+let categories = ["DJ", "1", "2"];
+// call the function
+
+function getCustomCategories() {
+  console.log("Getting custon categories: ");
+  let newCategories = createCustomCategories();
+  console.log("New Categories: ", newCategories);
+  categories = newCategories;
+}
+
+getCustomCategories();
+
+// function displayCustomCategories(newCategories) {
+//   console.log("Recieved custom categories", newCategories);
+//   categories.push(newCategories);
+//   console.log("New Categories added: ", categories);
+// }
+// displayCustomCategories(createCustomCategories);
+// push the custon categories here if they exist (if the user is logged in)
+
+categoryBtn.textContent = `Category: ${gameState.category}`;
+categoryBtn.addEventListener("click", switchCategory);
+
+function switchCategory() {
+  const currentIndex = categories.indexOf(gameState.category); // get the current category's index
+  const nextIndex = (currentIndex + 1) % categories.length; // get the next index (wrap back to 0)
+  gameState.category = categories[nextIndex]; // updates the category
+  categoryBtn.textContent = `Category: ${gameState.category}`;
+}
 
 // =========================================
 // START GAME
@@ -62,6 +98,7 @@ let filteredOptions = options.filter((option) => option.category === category); 
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     showGameScreen();
+    // generate filtered Options HERE
     setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems)); // start first round
   }, 500); // match the CSS transition time
 });

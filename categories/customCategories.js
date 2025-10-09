@@ -1,14 +1,13 @@
 import getTopArtists from "../fetch/fetchSpotifyData.js";
-
-const artists = {};
+import { gameState } from "../utils/gameState.js";
 
 // in this array, we're going to add the results of each of the functions, essentially fetching all of the user's known artists
+const artists = {};
 
 export default async function fetchUserArtists(token) {
   // getTopArtists() returns an object
   // the actual array of artists is in .items
   // we need to destructure the response
-  //
   // aka take the items property from the object returned by getTopArtists(token), and store it in a new variable called topArtists
   let { items: topArtists } = await getTopArtists(token);
 
@@ -25,10 +24,88 @@ export default async function fetchUserArtists(token) {
   // this we can also use for analysis
   artists.topArtists = topArtists;
 
-  console.log("User's Artists: ", artists);
-  //let savedArtists = getSavedArtists(token);
-  // savedArtists = [ {}, {}];
+  // TODO: Then get artists from saved artists and playlists too
+  // But we can start other functions asynchronously since we have the top artists to start with
+  // AIroaster(artists)
+  createCustomCategories(artists);
 }
+
+// create the categories and add them to the list of categories
+// only filter when the user presses start game?
+
+export function createCustomCategories(artists) {
+  let availableCategories = [];
+  // The first category should be "Top Artists"
+  availableCategories.push("Top Artists");
+
+  //   return customCategories;
+  return availableCategories;
+
+  // send the custom categories to the category controller
+
+  //   filterArtists("Top Artists", artists);
+}
+
+function categoryController() {
+  // Let the user click through available categories (DJ, Top Artists)
+  // displayCustomCategories();
+  // updating the game state
+  // gameState.category = "Top Artists";
+  // switching the button
+}
+
+export function filterArtists(category, artists) {
+  gameState.category = category;
+  let filteredOptions = [artists.topArtists];
+  return filteredOptions;
+}
+// create a function that will filter the artists based on the "category" in gameState
+// we want to return something that we can use
+// let filteredOptions: {
+//   name: string,
+//   source: string,
+//   category: string,
+// }[];
+// filteredOptions is an array of objects with "name", source: "the link to the image", and category?
+// filteredOptions: [{name: 'Fred Again...', source: 'images/fred_again.png', category: 'dj'}]
+
+// 0cmWgDlu9CwTgxPhf403hb
+// :
+// external_urls
+// :
+// {spotify: 'https://open.spotify.com/artist/0cmWgDlu9CwTgxPhf403hb'}
+// followers
+// :
+// {href: null, total: 1465472}
+// genres
+// :
+// (4) ['trip hop', 'downtempo', 'nu jazz', 'electronic']
+// href
+// :
+// "https://api.spotify.com/v1/artists/0cmWgDlu9CwTgxPhf403hb"
+// id
+// :
+// "0cmWgDlu9CwTgxPhf403hb"
+// images
+// :
+// (3) [{…}, {…}, {…}]
+// name
+// :
+// "Bonobo"
+// popularity
+// :
+// 62
+// type
+// :
+// "artist"
+// uri
+// :
+// "spotify:artist:0cmWgDlu9CwTgxPhf403hb"
+// [[Prototype]]
+// :
+// Object
+
+// First we call getTopArtists
 
 // export default function generateCustomCategories(token) {
 // 1. Get total artists = top artists + saved artists + playlist artists (the playlists created by you)

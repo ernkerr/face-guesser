@@ -3,7 +3,7 @@ export const gameState = {
   lives: 3,
   rounds: 0,
   mode: "normal",
-  category: "dj",
+  category: "DJ",
   answerIndex: null,
 };
 
