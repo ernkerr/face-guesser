@@ -1,5 +1,6 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { updateUser, updateLogout } from "../ui/updater.js";
+import getTopArtists from "../utils/fetchSpotifyData.js";
 
 const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
 const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
@@ -39,15 +40,25 @@ logoutBtn.addEventListener("click", async () => {
 
 // detect login state after redirect
 supabase.auth.onAuthStateChange((event, session) => {
+  console.log("Session:", session);
   if (session) {
     updateUser(
       session.user.user_metadata.avatar_url,
       session.user.user_metadata.full_name
     );
+    // TODO
+    // here we should have some sort of logic for a user's custom categories
+    // we should pass in this provider_token to pass down to spotify functions
+    // but we should have something running in the background (analysis perhaps)
+    // that runs asynchronously?
+    getTopArtists(session.provider_token);
   } else {
     updateLogout();
   }
 });
+
+// // Usage
+// getFavoriteColor(token)
 
 // functions to write:
 // update ui
