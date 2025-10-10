@@ -1,9 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { updateUser, updateLogout } from "../ui/updater.js";
 
-import getSpotifyPlaylist from "../fetch/fetchSpotifyData.js";
-import getTopArtists from "../fetch/fetchSpotifyData.js";
-import fetchUserArtists from "../categories/customCategories.js";
+import getUserInfo from "../categories/customCategories.js";
 
 const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
 const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
@@ -71,7 +69,9 @@ supabase.auth.onAuthStateChange((event, session) => {
 });
 
 function generateCustomGame(token) {
-  fetchUserArtists(token);
+  getUserInfo(token);
+
+  // fetchUserPlaylists(token, userId);
 }
 
 // // Usage

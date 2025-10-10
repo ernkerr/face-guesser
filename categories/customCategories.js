@@ -1,4 +1,4 @@
-import getTopArtists from "../fetch/fetchSpotifyData.js";
+import fetchTopArtists, { fetchUserID } from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
 
@@ -6,12 +6,12 @@ import { defaultOptions } from "./defaultCategories.js";
 const artists = {};
 let topArtistArray;
 
-export default async function fetchUserArtists(token) {
+export default async function getUserInfo(token) {
   // getTopArtists() returns an object
   // the actual array of artists is in .items
   // we need to destructure the response
   // aka take the items property from the object returned by getTopArtists(token), and store it in a new variable called topArtists
-  let { items: topArtists } = await getTopArtists(token);
+  let { items: topArtists } = await fetchTopArtists(token);
 
   // for each artist in topArtists
   // we're going to check if the id is a key in the object artists
@@ -27,6 +27,11 @@ export default async function fetchUserArtists(token) {
   topArtistArray = topArtists;
 
   console.log("Done fetching top artists: ", artists);
+
+  let userId = await fetchUserID(token);
+  // use the userId to get playlists, etc.
+
+  // let { items: savedArtists } = await fetchSavedArtists(token, userId);
 
   // TODO: Then get artists from saved artists and playlists too
   // But we can start other functions asynchronously since we have the top artists to start with
