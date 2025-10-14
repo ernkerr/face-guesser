@@ -19,7 +19,8 @@ export async function loginWithSpotify() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "spotify",
     options: {
-      scopes: "user-read-email user-top-read",
+      scopes:
+        "user-read-email user-top-read user-follow-read user-library-read ",
     },
   });
 

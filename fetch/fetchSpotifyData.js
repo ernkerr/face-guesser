@@ -64,9 +64,39 @@ export async function fetchUserID(token) {
 // Get the current user's followed artists.
 // https://api.spotify.com/v1/me/following
 
-export async function fetchSavedArtists(token, userId) {
+// 'https://api.spotify.com/v1/me/following?type=artist&after=ID_HERE&limit=50'
+// insufficient scope?
+
+// fetch saved artists (artists you follow)
+
+export async function fetchSavedArtists(token, userID) {
+  try {
+    const response = await fetch(
+      "https://api.spotify.com/v1/me/following?type=artist&limit=50",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("Error getting saved artists", errorData);
+    }
+
+    const data = await response.json();
+    console.log("User's Saved Artists: ", data);
+    return data;
+  } catch (error) {
+    console.log("Error fetching saved artists ", error);
+  }
   //
 }
+
+// fetch saved artists here for those
+// artists from my saved tracks
 
 //
 //
@@ -78,7 +108,9 @@ export async function fetchSpotifyPlaylist(token, playlist_id) {
       `https://api.spotify.com/v1/playlists/${playlist_id}`,
       {
         method: "GET",
-        headers: `Bearer ${token}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
 

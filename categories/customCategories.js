@@ -34,13 +34,16 @@ export default async function getUserInfo(token) {
   let userID = await fetchUserID(token);
   // use the userId to get playlists, etc.
 
-  let { items: savedArtists } = await fetchSavedArtists(token, userID);
+  let {
+    artists: { items: savedArtists },
+  } = await fetchSavedArtists(token, userID);
 
   savedArtists.forEach((artist) => {
     if (!(artist.id in artists)) {
       artists[artist.id] = artist;
     }
   });
+  console.log("Artists with Saved Artists: ", artists);
 
   // TODO: Then get artists from saved artists and playlists too
   // But we can start other functions asynchronously since we have the top artists to start with
