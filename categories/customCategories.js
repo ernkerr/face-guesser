@@ -6,11 +6,19 @@ import fetchTopArtists, {
 } from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
-import { genres } from "../data.js";
 
+// Main data containers
 // in this array, we're going to add the results of each of the functions, essentially fetching all of the user's known artists
-const artists = {};
-let topArtistArray;
+const artists = {}; // holds all artist objects keyed by ID
+let availableCategories = []; // category names for the game
+let topArtistArray = []; // array of top artists for filtering
+
+// LocalStorage keys for caching
+const USER_INFO_CACHE_KEY = "userInfoCache";
+const SAVED_ARTISTS_CACHE_KEY = "savedArtistsPartialCache";
+
+// Cache duration: 1 hour
+const CACHE_DURATION_MS = 1000 * 60 * 60;
 
 // TODO: Then get artists from saved artists and playlists too
 // But we can start other functions asynchronously since we have the top artists to start with
@@ -40,7 +48,6 @@ export default async function getUserInfo(token) {
   await addUniqueArtists(token, artists, topArtists2);
   topArtistArray = [...topArtistArray, ...topArtists2];
 
-  // Start something here because this step akes a while to run
   //
   // STEP 2: Get the user's saved artists (from their saved tracks)
   //
@@ -66,7 +73,19 @@ export default async function getUserInfo(token) {
   let userID = await fetchUserID(token);
   // use the userId to get playlists, etc.
 
-  await createCustomCategories();
+  await createCustomCategories(artists);
+}
+
+export async function createStarterCategories(token, savedTracks) {
+  // take all of the tracks,
+  const savedArtists = savedTracks.flatMap((t) => t.track?.artists || []);
+  await addUniqueArtists(token, artists, savedArtists);
+
+  // get the artists
+  // normalize them if needed
+  // check for genres
+  // check if we can add a new category
+  await createCustomCategories(artists);
 }
 
 async function addUniqueArtists(token, artists, newArtists) {
@@ -85,10 +104,14 @@ async function addUniqueArtists(token, artists, newArtists) {
   }
 }
 
-// create the categories and add them to the list of categories
+// create a full list of categories and add them to the list of categories
 
-export async function createCustomCategories() {
-  let availableCategories = [];
+export async function createCustomCategories(artists) {
+  console.log("Creating custom Categories");
+  if (!artists) {
+    console.warn("createCustomCategories called with no artists!");
+    return [];
+  }
 
   // TODO: Logic for other categories
   const genreCounts = {};
@@ -114,9 +137,6 @@ export async function createCustomCategories() {
     if (artist.genres.length === 0) {
       genreCounts["none"] = (genreCounts["none"] || 0) + 1;
     } else {
-      // QUICK NOTE:
-      // for...in gives you keys or indices (the id or index)
-      // for..of gives you values
       for (const genre of artist.genres) {
         // use the variable genre as the key
         // if the variable already exists, increment it, otherwise start at 0 and add 1 (so it becomes 1)
@@ -138,13 +158,15 @@ export async function createCustomCategories() {
   );
   console.log("Sorted Genres:", Object.entries(sortedGenres));
 
-  // let genreSorter = genre => {
-  //   //
-  // }
+  for (const genre of Object.entries(sortedGenres)) {
+    console.log("Genre", genre);
+    if (genre.length >= 30) {
+      console.log("Genre length", genre.length);
+    }
+  }
 
   // console.log("Sorted Genres", sortedGenres);
   // if the genre has more than ~ 30 artists, create a category for it
-  // lump together related genres
 
   availableCategories.push("Top Artists");
 

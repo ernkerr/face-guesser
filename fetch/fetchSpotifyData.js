@@ -1,5 +1,10 @@
 // fetch the users top artists 1-50
 
+import {
+  createCustomCategories,
+  createStarterCategories,
+} from "../categories/customCategories.js";
+
 export default async function fetchTopArtists(token) {
   try {
     const response = await fetch(
@@ -99,6 +104,15 @@ export async function fetchSavedArtists(token) {
       // otherwise we'll move the offset up and keep looping
       offset += 50;
 
+      // if offfset = 150 check for genres
+      if (offset === 150) {
+        createStarterCategories(token, allTracks);
+        return;
+        // TODO: implement caching
+      }
+      // then this function can resume
+      // and can call check for genres at every interval of 150 ?
+
       // small delay to avoid rate limits (Spotify’s safety)
       await new Promise((resolve) => setTimeout(resolve, 150));
     }
@@ -111,11 +125,22 @@ export async function fetchSavedArtists(token) {
 }
 
 // normalize artists
+let normalizedCache = JSON.parse(
+  localStorage.getItem("normalizedArtists") || "{}"
+); // load cache from local storage
+
 export async function normalizeArtist(token, artist) {
   if (!artist || !artist.id) return null;
 
+  // return from cache if available
+  if (normalizedCache[artist.id]) return normalizedCache[artist.id];
+
   // Fetch the full artist object
   console.log("Fetching full artist data for: ", artist.name);
+
+  // small delay to avoid rate limits (like you did in fetchSavedArtists)
+  await new Promise((resolve) => setTimeout(resolve, 150));
+
   try {
     const response = await fetch(
       `https://api.spotify.com/v1/artists/${artist.id}`,
@@ -123,8 +148,15 @@ export async function normalizeArtist(token, artist) {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+
     const fullArtist = await response.json();
-    return fullArtist || { ...artist, genres: [] }; // fallback to empty genres
+    const artistWithGenres = fullArtist || { ...artist, genres: [] }; // fallback to empty genres
+
+    // save to cache
+    normalizedCache[artist.id] = artistWithGenres;
+    localStorage.setItem("normalizedArtists", JSON.stringify(normalizedCache));
+
+    return artistWithGenres;
   } catch (e) {
     console.warn("Failed to fetch full artist info", artist.id, e);
     return { ...artist, genres: [] }; // fallback
