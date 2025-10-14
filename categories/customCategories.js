@@ -1,68 +1,74 @@
 import fetchTopArtists, {
+  fetchTopArtists2,
   fetchUserID,
   fetchSavedArtists,
 } from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
+import { genres } from "../data.js";
 
 // in this array, we're going to add the results of each of the functions, essentially fetching all of the user's known artists
 const artists = {};
 let topArtistArray;
 
+// TODO: Then get artists from saved artists and playlists too
+// But we can start other functions asynchronously since we have the top artists to start with
+// AIroaster(artists)
+
+// Get total artists = top artists + saved artists + playlist artists (the playlists created by you)
+// https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
+// GET https://api.spotify.com/v1/me/tracks
+// getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
+// if not enough? then fetch the user's top listed to going back even further (offset 50?)
+
 export default async function getUserInfo(token) {
-  // getTopArtists() returns an object
-  // the actual array of artists is in .items
+  //
+  // STEP 1: Get the user's top 100 artists
+  //
+  // getTopArtists() returns an object, the actual array of artists is in .items
   // we need to destructure the response
   // aka take the items property from the object returned by getTopArtists(token), and store it in a new variable called topArtists
   let { items: topArtists } = await fetchTopArtists(token);
+  addUniqueArtists(artists, topArtists);
 
-  // for each artist in topArtists
-  // we're going to check if the id is a key in the object artists
-  // if it's not, we'll add the returned artist to artists
-  topArtists.forEach((artist) => {
-    if (!(artist.id in artists)) {
-      // this creates a new "key" value pair in the object artists
-      artists[artist.id] = artist;
-    }
-  });
-  // if you want an array of the user's top artists to also be stored in the artists object
-  // this we can also use for analysis
+  // store an array of the user's top artists in the artists object
   topArtistArray = topArtists;
 
-  console.log("Done fetching top artists: ", artists);
-
-  let userID = await fetchUserID(token);
-  // use the userId to get playlists, etc.
+  // since the limit is 50, we're going to fetch 50 more
+  let { items: topArtists2 } = await fetchTopArtists2(token);
+  addUniqueArtists(artists, topArtists2);
+  topArtistArray = [...topArtistArray, ...topArtists2];
 
   let {
     artists: { items: savedArtists },
   } = await fetchSavedArtists(token, userID);
 
-  savedArtists.forEach((artist) => {
-    if (!(artist.id in artists)) {
-      artists[artist.id] = artist;
-    }
-  });
+  addUniqueArtists(artists, savedArtists);
   console.log("Artists with Saved Artists: ", artists);
+  console.log("Artists length: ", Object.keys(artists).length);
 
-  // TODO: Then get artists from saved artists and playlists too
-  // But we can start other functions asynchronously since we have the top artists to start with
-  // AIroaster(artists)
-
-  // Get total artists = top artists + saved artists + playlist artists (the playlists created by you)
-  // https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
-  // GET https://api.spotify.com/v1/me/tracks
-  // getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
-  // if not enough? then fetch the user's top listed to going back even further (offset 50?)
+  let userID = await fetchUserID(token);
+  // use the userId to get playlists, etc.
 
   createCustomCategories();
+}
+
+function addUniqueArtists(artists, newArtists) {
+  for (const artist of newArtists) {
+    // skip invalid entried (null or missing IDs)
+    if (!artist || !artist.id) continue;
+    // if the artist's key is already a key in the object artists, we continue
+    if (artist.id in artists) continue;
+
+    // otherwise we'll add it
+    artists[artist.id] = artist; // this creates a new "key" value pair in the object artists
+  }
 }
 
 // create the categories and add them to the list of categories
 
 export function createCustomCategories() {
   let availableCategories = [];
-  availableCategories.push("Top Artists");
 
   // TODO: Logic for other categories
   const genreCounts = {};
@@ -110,8 +116,17 @@ export function createCustomCategories() {
   const sortedGenres = Object.fromEntries(
     Object.entries(genreCounts).sort((a, b) => b[1] - a[1])
   );
-  console.log("Sorted Genres", sortedGenres);
+  console.log("Sorted Genres:", Object.entries(sortedGenres));
+
+  // let genreSorter = genre => {
+  //   //
+  // }
+
+  // console.log("Sorted Genres", sortedGenres);
   // if the genre has more than ~ 30 artists, create a category for it
+  // lump together related genres
+
+  availableCategories.push("Top Artists");
 
   return availableCategories;
 
