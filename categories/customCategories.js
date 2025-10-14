@@ -2,6 +2,7 @@ import fetchTopArtists, {
   fetchTopArtists2,
   fetchUserID,
   fetchSavedArtists,
+  normalizeArtist,
 } from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
@@ -29,36 +30,55 @@ export default async function getUserInfo(token) {
   // we need to destructure the response
   // aka take the items property from the object returned by getTopArtists(token), and store it in a new variable called topArtists
   let { items: topArtists } = await fetchTopArtists(token);
-  addUniqueArtists(artists, topArtists);
+  await addUniqueArtists(token, artists, topArtists);
 
   // store an array of the user's top artists in the artists object
   topArtistArray = topArtists;
 
   // since the limit is 50, we're going to fetch 50 more
   let { items: topArtists2 } = await fetchTopArtists2(token);
-  addUniqueArtists(artists, topArtists2);
+  await addUniqueArtists(token, artists, topArtists2);
   topArtistArray = [...topArtistArray, ...topArtists2];
 
-  let {
-    artists: { items: savedArtists },
-  } = await fetchSavedArtists(token, userID);
+  // Start something here because this step akes a while to run
+  //
+  // STEP 2: Get the user's saved artists (from their saved tracks)
+  //
+  console.log(
+    "Artists before adding saved tracks:",
+    Object.keys(artists).length
+  );
+  const savedTracks = await fetchSavedArtists(token);
 
-  addUniqueArtists(artists, savedArtists);
-  console.log("Artists with Saved Artists: ", artists);
-  console.log("Artists length: ", Object.keys(artists).length);
+  // takes all track.track.artists arrays and flattens them into a single list of artist objects
+  const savedArtists = savedTracks.flatMap(
+    (t) => t.track?.artists || [] // prevents errors if a track doesn’t have an artist
+  );
 
+  await addUniqueArtists(token, artists, savedArtists);
+  console.log(
+    "Artists after adding saved tracks:",
+    Object.keys(artists).length
+  );
+  //
+  // STEP 3
+  //
   let userID = await fetchUserID(token);
   // use the userId to get playlists, etc.
 
-  createCustomCategories();
+  await createCustomCategories();
 }
 
-function addUniqueArtists(artists, newArtists) {
-  for (const artist of newArtists) {
-    // skip invalid entried (null or missing IDs)
+async function addUniqueArtists(token, artists, newArtists) {
+  for (let artist of newArtists) {
+    // skip invalid entries (null or missing IDs)
     if (!artist || !artist.id) continue;
     // if the artist's key is already a key in the object artists, we continue
     if (artist.id in artists) continue;
+    // if the artist doesn't have a genre, try normalizing them
+    if (!artist.genres) {
+      artist = await normalizeArtist(token, artist);
+    }
 
     // otherwise we'll add it
     artists[artist.id] = artist; // this creates a new "key" value pair in the object artists
@@ -67,7 +87,7 @@ function addUniqueArtists(artists, newArtists) {
 
 // create the categories and add them to the list of categories
 
-export function createCustomCategories() {
+export async function createCustomCategories() {
   let availableCategories = [];
 
   // TODO: Logic for other categories

@@ -1,4 +1,5 @@
-// get customized spotify data after logging in
+// fetch the users top artists 1-50
+
 export default async function fetchTopArtists(token) {
   try {
     const response = await fetch(
@@ -12,26 +13,22 @@ export default async function fetchTopArtists(token) {
     );
 
     if (!response.ok) {
-      const errorData = await response.json(); // Attempt to parse error details
+      const errorData = await response.json();
       throw new Error(
         `HTTP error! status: ${response.status}, message: ${errorData.message}"
         }`
       );
     }
 
-    // Add `data` and await `response.json()`
     const data = await response.json();
-    // console.log("Returning Top Artists:", data);
     return data;
-    // return data; // Return the data from the function
   } catch (error) {
     console.error("Error during fetch operation:", error.message);
     throw error; // Re-throw the error if further handling is needed upstream
   }
-  // https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
 }
 
-// fetch page 2
+// fetch the users top artists 50-100
 
 export async function fetchTopArtists2(token) {
   try {
@@ -46,22 +43,92 @@ export async function fetchTopArtists2(token) {
     );
 
     if (!response.ok) {
-      const errorData = await response.json(); // Attempt to parse error details
+      const errorData = await response.json();
       throw new Error(
         `HTTP error! status: ${response.status}, message: ${errorData.message}"
         }`
       );
     }
 
-    // Add `data` and await `response.json()`
     const data = await response.json();
-    console.log("Returning Top Artists Page 2:", data);
-    return data; // Return the data from the function
+    return data;
   } catch (error) {
     console.error("Error during fetch operation:", error.message);
     throw error; // Re-throw the error if further handling is needed upstream
   }
-  // https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
+}
+
+// fetch the artists that the user has saved(in their liked songs?)
+// Handles pagination (since Spotify only returns 50 at a time)
+// and returns a single combined array of ALL saved tracks
+export async function fetchSavedArtists(token) {
+  let offset = 0; // where we are in the list
+  let allTracks = []; // store all saved tracks here
+
+  try {
+    while (true) {
+      const response = await fetch(
+        `https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Error getting saved artists", errorData);
+        break; // stop the loop if Spotify returns an error
+      }
+
+      const data = await response.json();
+
+      console.log(`Fetched ${data.items.length} tracks (offset: ${offset})`);
+
+      // add this list of results to our all tracks array
+      allTracks.push(...data.items);
+
+      // if we got fewer than the "limit" rate, we've reached the end
+      if (data.items.length < 50) {
+        console.log("Finished fetching all saved tracks");
+        break;
+      }
+
+      // otherwise we'll move the offset up and keep looping
+      offset += 50;
+
+      // small delay to avoid rate limits (Spotify’s safety)
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    // return ALL combined results — not just .items
+    console.log(`🎵 Total saved tracks fetched: ${allTracks.length}`);
+    return allTracks;
+  } catch (error) {
+    console.log("Error fetching saved artists ", error);
+  }
+}
+
+// normalize artists
+export async function normalizeArtist(token, artist) {
+  if (!artist || !artist.id) return null;
+
+  // Fetch the full artist object
+  console.log("Fetching full artist data for: ", artist.name);
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists/${artist.id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const fullArtist = await response.json();
+    return fullArtist || { ...artist, genres: [] }; // fallback to empty genres
+  } catch (e) {
+    console.warn("Failed to fetch full artist info", artist.id, e);
+    return { ...artist, genres: [] }; // fallback
+  }
 }
 
 export async function fetchUserID(token) {
@@ -102,32 +169,6 @@ export async function fetchUserID(token) {
 
 // fetch saved artists (artists you follow)
 
-export async function fetchSavedArtists(token, userID) {
-  try {
-    const response = await fetch(
-      "https://api.spotify.com/v1/me/following?type=artist&limit=50",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.log("Error getting saved artists", errorData);
-    }
-
-    const data = await response.json();
-    console.log("User's Saved Artists: ", data);
-    return data;
-  } catch (error) {
-    console.log("Error fetching saved artists ", error);
-  }
-  //
-}
-
 // fetch saved artists here for those
 // artists from my saved tracks
 
@@ -159,3 +200,30 @@ export async function fetchSpotifyPlaylist(token, playlist_id) {
     console.log("Error at getSpotifyPlaylist", error.message);
   }
 }
+
+// // fetched the artists that the user is following
+// BUGGY (NO OFFSET?)
+// export async function fetchFollowingArtists(token) {
+//   try {
+//     const response = await fetch(
+//       "https://api.spotify.com/v1/me/following?type=artist&limit=50",
+//       {
+//         method: "GET",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+
+//     if (!response.ok) {
+//       const errorData = await response.json();
+//       console.log("Error getting followed artists", errorData);
+//     }
+
+//     const data = await response.json();
+//     console.log("User's Followed Artists: ", data);
+//     return data;
+//   } catch (error) {
+//     console.log("Error fetching user's followed artists: ", error);
+//   }
+// }
