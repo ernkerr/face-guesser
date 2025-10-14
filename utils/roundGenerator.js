@@ -69,12 +69,9 @@ function populateGridUI(randomArray, filteredOptions, mode, gridItems) {
     const option = filteredOptions[optionIndex];
 
     if (mode === "easy") {
-      // set the image src to the URL found in the filteredOptions array at optionIndex
-      // option.images[0]
-      console.log("setting image to option.images[0]");
+      console.log("option: ", option);
       img.setAttribute("src", option.images[0].url);
       img.classList.add("secondary-button-img");
-      // store the index of this img as a data atribute on the <img>
       img.dataset.index = optionIndex; // store index for clicks
       name.style.display = "none";
     } else if (mode === "normal") {

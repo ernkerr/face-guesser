@@ -1,4 +1,7 @@
-import fetchTopArtists, { fetchUserID } from "../fetch/fetchSpotifyData.js";
+import fetchTopArtists, {
+  fetchUserID,
+  fetchSavedArtists,
+} from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
 
@@ -28,10 +31,16 @@ export default async function getUserInfo(token) {
 
   console.log("Done fetching top artists: ", artists);
 
-  let userId = await fetchUserID(token);
+  let userID = await fetchUserID(token);
   // use the userId to get playlists, etc.
 
-  // let { items: savedArtists } = await fetchSavedArtists(token, userId);
+  let { items: savedArtists } = await fetchSavedArtists(token, userID);
+
+  savedArtists.forEach((artist) => {
+    if (!(artist.id in artists)) {
+      artists[artist.id] = artist;
+    }
+  });
 
   // TODO: Then get artists from saved artists and playlists too
   // But we can start other functions asynchronously since we have the top artists to start with
