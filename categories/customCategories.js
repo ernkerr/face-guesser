@@ -1,7 +1,7 @@
 import fetchTopArtists, {
   fetchTopArtists2,
   fetchUserID,
-  fetchSavedArtists,
+  fetchSavedTracks,
   normalizeArtist,
 } from "../fetch/fetchSpotifyData.js";
 import { gameState } from "../utils/gameState.js";
@@ -12,23 +12,94 @@ import { defaultOptions } from "./defaultCategories.js";
 const artists = {}; // holds all artist objects keyed by ID
 let availableCategories = []; // category names for the game
 let topArtistArray = []; // array of top artists for filtering
+let likedTracksArray = [];
 
-// LocalStorage keys for caching
-const USER_INFO_CACHE_KEY = "userInfoCache";
-const SAVED_ARTISTS_CACHE_KEY = "savedArtistsPartialCache";
+let artistsToNormalize = []; // ongoing array of artists which we need to fetch information for
 
-// Cache duration: 1 hour
-const CACHE_DURATION_MS = 1000 * 60 * 60;
+// ----------------------
+// When the user selects a category: Top Artists, Liked Songs, etc. etc. then pull all of them 180 per minute
+// cache them and then keep pulling them as they play the game populating more and more into the game as the user plays it,
+// eliminating them as they go until it reaches a certain. number then let them use those first ones again
 
 // TODO: Then get artists from saved artists and playlists too
 // But we can start other functions asynchronously since we have the top artists to start with
 // AIroaster(artists)
 
-// Get total artists = top artists + saved artists + playlist artists (the playlists created by you)
-// https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
-// GET https://api.spotify.com/v1/me/tracks
-// getSpotifyPlaylist(session.provider_token, "37i9dQZF1DXcBWIGoYBM5M");
-// if not enough? then fetch the user's top listed to going back even further (offset 50?)
+// ----------------------
+
+// ----------------------
+// Helper: add artists uniquely
+// ----------------------
+
+async function addUniqueArtists(artists, newArtists) {
+  console.log("=== addUniqueArtists START ===");
+
+  // Separate artists with genres vs. artists that need normalization
+  for (let artist of newArtists) {
+    if (!artist || !artist.id) continue; // skip invalid entries (null or missing IDs)
+    if (artist.id in artists) continue; // if the artist's key is already a key in the object artists, we continue
+
+    // if the artist doesn't have a genre, add them to artistsToNormalize
+
+    // if (!artist.genres || artist.genres.length === 0) {
+    // NOTE: I think I can remove this artist.genres.length but I want to make sure it doesn't break anything
+    if (!artist.genres) {
+      artistsToNormalize.push(artist); // batch for normalization
+    } else {
+      artists[artist.id] = artist; // add directly if genres exist, this creates a new "key" value pair in the object artists
+    }
+  }
+}
+
+// ----------------------
+// Helper: batch normalize artists (get the genres)
+// ----------------------
+
+export async function normalizeArtists(token) {
+  // if there are artists to normalize,
+  if (artistsToNormalize.length > 0) {
+    // get the first 50 artists
+    const firstbatch = artistsToNormalize.slice(0, 50);
+
+    // normalize them in one API call
+    const normalizedArtists = await normalizeArtist(token, firstbatch);
+
+    console.log(
+      "calling add unique artists with normalized artists",
+      normalizedArtists
+    );
+
+    // add the normalized artists to the main object
+    addUniqueArtists(normalizedArtists);
+
+    for (const artist of normalizedArtists) {
+      if (artist.id && !(artist.id in artists)) {
+        artists[artist.id] = artist; // once they are normalized, put them in the artists object
+      }
+    }
+    // remove the artists from the list of artistsToNormalize
+    artistsToNormalize.splice(0, 50);
+  }
+}
+
+// ----------------------
+// Helper: pull artists from tracks
+// ----------------------
+
+function getArtistsFromTracks(tracks) {
+  console.log("calling getArtistsFromTracks: ", tracks);
+
+  // takes all track.track.artists arrays and flattens them into a single list of artist objects
+  const savedArtists = tracks.flatMap(
+    (t) => t.track?.artists || [] // prevents errors if a track doesn’t have an artist
+  );
+
+  return savedArtists;
+}
+
+// ----------------------
+// Main Function: called when user logs in
+// ----------------------
 
 export default async function getUserInfo(token) {
   //
@@ -37,71 +108,39 @@ export default async function getUserInfo(token) {
   // getTopArtists() returns an object, the actual array of artists is in .items
   // we need to destructure the response
   // aka take the items property from the object returned by getTopArtists(token), and store it in a new variable called topArtists
+
   let { items: topArtists } = await fetchTopArtists(token);
-  await addUniqueArtists(token, artists, topArtists);
+  await addUniqueArtists(artists, topArtists);
 
   // store an array of the user's top artists in the artists object
   topArtistArray = topArtists;
 
   // since the limit is 50, we're going to fetch 50 more
   let { items: topArtists2 } = await fetchTopArtists2(token);
-  await addUniqueArtists(token, artists, topArtists2);
+  await addUniqueArtists(artists, topArtists2);
   topArtistArray = [...topArtistArray, ...topArtists2];
 
   //
   // STEP 2: Get the user's saved artists (from their saved tracks)
   //
-  console.log(
-    "Artists before adding saved tracks:",
-    Object.keys(artists).length
-  );
-  const savedTracks = await fetchSavedArtists(token);
+  const { items: savedTracks } = await fetchSavedTracks(token, 0); // passing in the offset
+  console.log("Recieved saved tracks:", savedTracks);
 
-  // takes all track.track.artists arrays and flattens them into a single list of artist objects
-  const savedArtists = savedTracks.flatMap(
-    (t) => t.track?.artists || [] // prevents errors if a track doesn’t have an artist
-  );
+  const artistsSavedTracks = getArtistsFromTracks(savedTracks);
 
-  await addUniqueArtists(token, artists, savedArtists);
-  console.log(
-    "Artists after adding saved tracks:",
-    Object.keys(artists).length
-  );
+  // function to get artists from tracks
+  await addUniqueArtists(artists, artistsSavedTracks);
+
+  // store an array of the artists from the user's saved tracks in the artists object
+  likedTracksArray = artistsSavedTracks;
+
   //
   // STEP 3
   //
   let userID = await fetchUserID(token);
   // use the userId to get playlists, etc.
 
-  await createCustomCategories(artists);
-}
-
-export async function createStarterCategories(token, savedTracks) {
-  // take all of the tracks,
-  const savedArtists = savedTracks.flatMap((t) => t.track?.artists || []);
-  await addUniqueArtists(token, artists, savedArtists);
-
-  // get the artists
-  // normalize them if needed
-  // check for genres
-  // check if we can add a new category
-  await createCustomCategories(artists);
-}
-
-async function addUniqueArtists(token, artists, newArtists) {
-  for (let artist of newArtists) {
-    // skip invalid entries (null or missing IDs)
-    if (!artist || !artist.id) continue;
-    // if the artist's key is already a key in the object artists, we continue
-    if (artist.id in artists) continue;
-    // if the artist doesn't have a genre, try normalizing them
-    if (!artist.genres) {
-      artist = await normalizeArtist(token, artist);
-    }
-
-    // otherwise we'll add it
-    artists[artist.id] = artist; // this creates a new "key" value pair in the object artists
-  }
+  // await createCustomCategories(artists);
 }
 
 // create a full list of categories and add them to the list of categories
@@ -113,13 +152,14 @@ export async function createCustomCategories(artists) {
     return [];
   }
 
+  availableCategories.push("Top Artists");
+  availableCategories.push("Liked Songs");
+  // availableCategories.push("Genreless");
+
   // TODO: Logic for other categories
   const genreCounts = {};
-  // availableCategories.push("1");
-  // availableCategories.push("2");
 
-  //
-
+  // NOTE:
   // loop through each artist in artist object and count how many times each genre appears
   // Object.values(artists) returns an array of all the values in an object
   // it allows us to directly loop over the value {name: "", genres: []} , not the key
@@ -158,17 +198,17 @@ export async function createCustomCategories(artists) {
   );
   console.log("Sorted Genres:", Object.entries(sortedGenres));
 
+  // if the genre has more than ~ 30 artists, create a category for it
   for (const genre of Object.entries(sortedGenres)) {
-    console.log("Genre", genre);
-    if (genre.length >= 30) {
-      console.log("Genre length", genre.length);
+    if (genre.length >= 5) {
+      console.log("New Genre: ", genre);
+      // get all of the artists in this genre and add it to the artists object (like top songs)
+      availableCategories.push(`${genre.name}`);
+      console.log("Added a new avaliable category: ", availableCategories);
     }
   }
 
   // console.log("Sorted Genres", sortedGenres);
-  // if the genre has more than ~ 30 artists, create a category for it
-
-  availableCategories.push("Top Artists");
 
   return availableCategories;
 
@@ -203,6 +243,7 @@ export async function createCustomCategories(artists) {
 export function filterArtists() {
   if (gameState.category === "DJ") return defaultOptions;
   if (gameState.category === "Top Artists") return topArtistArray;
+  if (gameState.category === "Liked Tracks") return likedTracksArray;
 
   // let category = gameState.category;
   // category = "Top Artists"
