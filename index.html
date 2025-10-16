@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8" />    
+
 
     <title>Guess The</title>
     <!-- <link rel="stylesheet" href="styles.css" /> -->
@@ -12,17 +13,18 @@
   <body class="container flex flex-col min-h-screen min-w-screen relative text-white">
     
      <!-- User / Spotify login in top-right -->
-    <div class="absolute top-4 right-4">
+  <div class=" flex justify-center items-center w-full h-full" id="login-screen">
+    <!-- Spotify login -->
+    <button id="spotify-btn" class="arcade flex justify-center items-center gap-2 glow-button-green">
+      <img
+        src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png"
+        alt="Spotify logo"
+        class="w-12 h-12 mr-4" />
+      Login with Spotify
+    </button>
+  </div>
 
-        <!-- Spotify login -->
-  <button id="spotify-btn" class="arcade flex items-center gap-2 glow-button-green">
-    <img
-      src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png"
-      alt="Spotify logo"
-      class="w-12 h-12 mr-4" />
-    Login with Spotify
-  </button>
-
+<div class="user-button">
     <!-- User button (avatar + name) -->
   <button id="user-btn" class="arcade flex items-center gap-2 glow-button-green hidden">
     <img id="user-img" src="" alt="User profile picture" class="w-12 h-12 rounded-full" />
@@ -30,12 +32,12 @@
   </button>
 
 
+
         <!-- Hidden logout button -->
   <button id="logout-btn" class="arcade glow-button-green mt-6 hidden" >
     Log Out
   </button>
     </div>
-<!-- <button class="" id="logout-btn"></button> -->
 
     <!-- Title screen -->
     <div id="title-screen" class="flex flex-col justify-center items-center">

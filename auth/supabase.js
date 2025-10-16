@@ -2,9 +2,11 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { updateUser, updateLogout } from "../ui/updater.js";
 
 import getUserInfo from "../categories/customCategories.js";
+import { showTitleScreen } from "../ui/screens.js";
 
-const supabaseUrl = "https://vozbajoajvejveklywpm.supabase.co";
-const supabaseKey = "sb_publishable_xqu3kuPJKOq87tV8TxcPwg_lyeA37i8";
+const supabaseUrl = "https://oonqcxtqkywqfgdjjvbt.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vbnFjeHRxa3l3cWZnZGpqdmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDU2NDAsImV4cCI6MjA3NjE4MTY0MH0.GmdZzswIzRUiArG24rcwiR3kMq6PQE1Bhuy9YwevRSQ";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let customGameGenerated = false; // flag to prevent multiple calls
@@ -29,7 +31,7 @@ export async function loginWithSpotify() {
   } else {
     // redirects user to spotify login
     console.log("Redirecting to Spotify login: ", data.url);
-    //TODO: push to history instead
+    // TODO: push to history instead
     window.location.href = data.url;
   }
 }
@@ -44,11 +46,14 @@ logoutBtn.addEventListener("click", async () => {
 
 // detect login state after redirect
 supabase.auth.onAuthStateChange((event, session) => {
-  // console.log("Session:", session);
-  if (session) {
+  if (event === "SIGNED_OUT") {
+    updateLogout();
+    customGameGenerated = false; // reset flag when user logs out
+  } else if (session) {
     // Only run once per session
     if (!customGameGenerated) {
       generateCustomGame(session.provider_token);
+      showTitleScreen();
       customGameGenerated = true;
     }
 
@@ -57,17 +62,12 @@ supabase.auth.onAuthStateChange((event, session) => {
       session.user.user_metadata.full_name
     );
   }
-  // TODO
-  // here we should have some sort of logic for a user's custom categories
-  // we should pass in this provider_token to pass down to spotify functions
-  // but we should have something running in the background (analysis perhaps)
-  // that runs asynchronously?
-  // generateTasteAnalysis
-  else {
-    updateLogout();
-    customGameGenerated = false; // reset flag when user logs out
-  }
 });
+
+// TODO
+// but we should have something running in the background (analysis perhaps)
+// that runs asynchronously?
+// generateTasteAnalysis
 
 function generateCustomGame(token) {
   getUserInfo(token);
