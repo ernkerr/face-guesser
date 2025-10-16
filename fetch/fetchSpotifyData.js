@@ -172,53 +172,85 @@ export async function fetchSavedTracks(token, offset) {
 
 
 
-  console.log(`Fetching saved tracks for offset: ${offset} from API`);
+  const fetchWithRetry = async (retry = false) => {
 
-  try {
+    console.log(`Fetching saved tracks for offset: ${offset} from API`);
 
-    const response = await fetch(
+    try {
 
-      `https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`,
+      const response = await fetch(
 
-      {
+        `https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`,
 
-        method: "GET",
+        {
 
-        headers: {
+          method: "GET",
 
-          Authorization: `Bearer ${token}`,
+          headers: {
 
-        },
+            Authorization: `Bearer ${token}`,
+
+          },
+
+        }
+
+      );
+
+
+
+      if (response.status === 429) {
+
+        if (retry) {
+
+          console.log("Rate limit hit again. Stopping.");
+
+          return null;
+
+        }
+
+        console.log("Rate limit hit. Retrying in 60 seconds...");
+
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+
+        return fetchWithRetry(true);
 
       }
 
-    );
+
+
+      if (!response.ok) {
+
+        const errorData = await response.json();
+
+        console.log("Error getting saved artists", errorData);
+
+        return null;
+
+      }
 
 
 
-    if (!response.ok) {
+      const data = await response.json();
 
-      const errorData = await response.json();
+      addArtistsToCache({ [cacheKey]: data }); // Cache the response
 
-      console.log("Error getting saved artists", errorData);
+      console.log("Returning fetched tracks");
+
+      return data;
+
+    } catch (error) {
+
+      console.log("Error fetching saved artists ", error);
+
+      return null;
 
     }
 
+  };
 
 
-    const data = await response.json();
 
-    addArtistsToCache({ [cacheKey]: data }); // Cache the response
-
-    console.log("Returning fetched tracks");
-
-    return data;
-
-  } catch (error) {
-
-    console.log("Error fetching saved artists ", error);
-
-  }
+  return fetchWithRetry();
 
 }
 
@@ -268,15 +300,15 @@ export async function normalizeArtist(token, artists) {
 
 
 
-    const data = await response.json();
+        const data = await response.json();
 
-    console.log("Raw data: ", data);
 
-    const artistsData = data.artists;
 
-    console.log("Returning artists data: ", artistsData);
+        const artistsData = data.artists;
 
-    return artistsData;
+
+
+        return artistsData;
 
   } catch (e) {
 

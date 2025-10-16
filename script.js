@@ -1,30 +1,10 @@
 import { roundGenerator } from "./utils/roundGenerator.js";
 import { handleClickGuess, handleExpertGuess } from "./utils/guessHandler.js";
 import { initAnimations, playAnimation } from "./ui/animations.js";
-import {
-  showGameScreen,
-  showGameOverScreen,
-  showTitleScreen,
-} from "./ui/screens.js";
-import {
-  gameState,
-  updateScore,
-  removeLife,
-  resetGame,
-  setMode,
-  setAnswerIndex,
-  addRound,
-} from "./utils/gameState.js";
-import {
-  updateScoreDisplay,
-  updateQuestion,
-  removeHeart,
-} from "../ui/updater.js";
+import { showGameScreen, showGameOverScreen } from "./ui/screens.js";
+import { getState, addSeenArtist, setAnswerIndex, setCategory, setMode } from "./state/store.js";
 import { loginWithSpotify } from "./auth/supabase.js";
-import {
-  createCustomCategories,
-  filterArtists,
-} from "./categories/customCategories.js";
+import { filterArtists, fetchMoreLikedSongs, fetchMoreGenreArtists } from "./categories/customCategories.js";
 
 await initAnimations(); // preload JSONs
 
@@ -33,9 +13,6 @@ let modeBtn = document.getElementById("mode-btn");
 let categoryBtn = document.getElementById("category-btn");
 const gridItems = document.querySelectorAll(".grid-item");
 const nextBtn = document.getElementById("next");
-let filteredOptions;
-
-// TODO: add gelatine animation to animations
 
 // User clicks “Login with Spotify”
 const spotifyBtn = document.getElementById("spotify-btn");
@@ -46,23 +23,38 @@ spotifyBtn.addEventListener("click", loginWithSpotify);
 // =========================================
 
 let categories = ["DJ"];
+let backgroundFetcher = { intervalId: null };
 
-function getCustomCategories() {
-  let newCategories = createCustomCategories();
-  console.log("New Categories: ", newCategories);
-  categories = newCategories;
+document.addEventListener("categories-ready", (e) => {
+  console.log("Categories ready: ", e.detail);
+  categories = e.detail.filter(cat => cat !== 'DJ'); // Remove DJ
+  setCategory("Top Artists");
+  categoryBtn.textContent = `Category: ${getState().category}`;
+  categoryBtn.addEventListener("click", switchCategory);
+});
+
+function isGenreCategory(category) {
+  return !["Top Artists", "Liked Songs", "DJ"].includes(category);
 }
 
-getCustomCategories();
-
-categoryBtn.textContent = `Category: ${gameState.category}`;
-categoryBtn.addEventListener("click", switchCategory);
-
 function switchCategory() {
-  const currentIndex = categories.indexOf(gameState.category); // get the current category's index
-  const nextIndex = (currentIndex + 1) % categories.length; // get the next index (wrap back to 0)
-  gameState.category = categories[nextIndex]; // updates the category in game state
-  categoryBtn.textContent = `Category: ${gameState.category}`;
+  const currentIndex = categories.indexOf(getState().category);
+  const nextIndex = (currentIndex + 1) % categories.length;
+  setCategory(categories[nextIndex]);
+  categoryBtn.textContent = `Category: ${getState().category}`;
+
+  // Handle background fetching
+  clearInterval(backgroundFetcher.intervalId);
+
+  if (getState().category === "Liked Songs") {
+    backgroundFetcher.intervalId = setInterval(() => {
+      fetchMoreLikedSongs(getState().spotifyToken);
+    }, 30000);
+  } else if (isGenreCategory(getState().category)) {
+    backgroundFetcher.intervalId = setInterval(() => {
+      fetchMoreGenreArtists(getState().spotifyToken, getState().category);
+    }, 30000);
+  }
 }
 
 // =========================================
@@ -72,13 +64,8 @@ function switchCategory() {
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     showGameScreen();
-    // generate filtered Options HERE
-    filteredOptions = filterArtists();
-    console.log(
-      "Filtered Artists passed to round generator: ",
-      filteredOptions
-    );
-    setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems)); // start first round
+    const availableArtists = filterArtists();
+    setAnswerIndex(roundGenerator(availableArtists, getState().mode, gridItems)); // start first round
   }, 500); // match the CSS transition time
 });
 
@@ -87,7 +74,7 @@ startBtn.addEventListener("click", () => {
 // =========================================
 
 const modes = ["easy", "normal", "expert"];
-modeBtn.textContent = `Mode: ${gameState.mode}`; // initialize mode text
+modeBtn.textContent = `Mode: ${getState().mode}`; // initialize mode text
 modeBtn.addEventListener("click", switchMode);
 
 // hide input + next button by default
@@ -95,14 +82,14 @@ const expertModeContainer = document.getElementById("expert-mode");
 expertModeContainer.style.display = "none";
 
 function switchMode() {
-  const currentIndex = modes.indexOf(gameState.mode); // get the current mode's index
+  const currentIndex = modes.indexOf(getState().mode); // get the current mode's index
   const nextIndex = (currentIndex + 1) % modes.length; // get next index (wraps back to 0)
-  gameState.mode = modes[nextIndex]; // update mode
-  modeBtn.textContent = `Mode: ${gameState.mode}`; // update button text
+  setMode(modes[nextIndex]); // update mode
+  modeBtn.textContent = `Mode: ${getState().mode}`; // update button text
 
   // if in expert mode, show the expert mode container
   expertModeContainer.style.display =
-    gameState.mode !== "expert" ? "none" : "block";
+    getState().mode !== "expert" ? "none" : "block";
 }
 
 // =========================================
@@ -122,12 +109,13 @@ function disableGuesses() {
 function handleNext() {
   //
   // expert mode handles input differently
-  if (gameState.mode === "expert") {
+  if (getState().mode === "expert") {
     checkExpertGuess();
   }
 
   // generate new round
-  setAnswerIndex(roundGenerator(filteredOptions, gameState.mode, gridItems));
+  const availableArtists = filterArtists();
+  setAnswerIndex(roundGenerator(availableArtists, getState().mode, gridItems));
 }
 
 // attach next button
@@ -158,12 +146,16 @@ function handleGameOver() {
 function checkExpertGuess() {
   const guessElement = document.getElementById("guess-input");
   const userGuess = guessElement.value;
-  const correctAnswer = filteredOptions[gameState.answerIndex].name;
+  const correctAnswer = getState().currentRoundArtists[getState().answerIndex].name;
 
   const correct = handleExpertGuess(userGuess, correctAnswer);
 
+  if (correct) {
+    addSeenArtist(getState().currentRoundArtists[getState().answerIndex].id);
+  }
+
   // If game over, show screen
-  if (gameState.lives === 0) {
+  if (getState().lives === 0) {
     handleGameOver();
   }
   // reset input for the next round
@@ -193,11 +185,11 @@ gridItems.forEach((gridItem) => {
       // run your guess check logic
       // handle click guess will return a true or false
       // if you want to use it in the future
-      // const correct = handleClickGuess(guessIndex, gameState.answerIndex);
-      handleClickGuess(guessIndex, gameState.answerIndex);
+      handleClickGuess(guessIndex, getState().answerIndex);
+      addSeenArtist(getState().currentRoundArtists[getState().answerIndex].id);
 
       // If game over, show screen, else go to next round
-      if (gameState.lives === 0) {
+      if (getState().lives === 0) {
         handleGameOver();
       } else {
         setTimeout(handleNext, 1000);
