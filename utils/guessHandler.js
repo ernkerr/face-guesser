@@ -1,5 +1,5 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
-import { gameState, updateScore, removeLife } from "./gameState.js";
+import { updateScore, removeLife, getState } from "../state/store.js";
 import { updateScoreDisplay, removeHeart } from "../ui/updater.js";
 import { playAnimation } from "../ui/animations.js";
 

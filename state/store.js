@@ -13,38 +13,42 @@ const gameState = {
 
 export const store = new EventTarget();
 
+function dispatchStateChange() {
+    store.dispatchEvent(new CustomEvent("state-changed", { detail: gameState }));
+}
+
 export function getState() {
   return gameState;
 }
 
 export function updateScore(points) {
   gameState.score += points;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { score: gameState.score } }));
+  dispatchStateChange();
 }
 
 export function removeLife() {
   gameState.lives--;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { lives: gameState.lives } }));
+  dispatchStateChange();
 }
 
 export function setMode(mode) {
   gameState.mode = mode;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { mode: gameState.mode } }));
+  dispatchStateChange();
 }
 
 export function setAnswerIndex(index) {
   gameState.answerIndex = index;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { answerIndex: gameState.answerIndex } }));
+  dispatchStateChange();
 }
 
 export function addRound() {
   gameState.rounds++;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { rounds: gameState.rounds } }));
+  dispatchStateChange();
 }
 
 export function addSeenArtist(artistId) {
   gameState.seenArtists.add(artistId);
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { seenArtists: gameState.seenArtists } }));
+  dispatchStateChange();
 }
 
 export function resetGame() {
@@ -52,25 +56,25 @@ export function resetGame() {
   gameState.lives = 3;
   gameState.rounds = 0;
   gameState.seenArtists.clear();
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { score: gameState.score, lives: gameState.lives, rounds: gameState.rounds, seenArtists: gameState.seenArtists } }));
+  dispatchStateChange();
 }
 
 export function setCategory(category) {
   gameState.category = category;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { category: gameState.category } }));
+  dispatchStateChange();
 }
 
 export function setSpotifyToken(token) {
   gameState.spotifyToken = token;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { spotifyToken: gameState.spotifyToken } }));
+  dispatchStateChange();
 }
 
 export function setCurrentRoundArtists(artists) {
   gameState.currentRoundArtists = artists;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { currentRoundArtists: gameState.currentRoundArtists } }));
+  dispatchStateChange();
 }
 
 export function incrementLikedSongsOffset() {
   gameState.likedSongsOffset += 50;
-  store.dispatchEvent(new CustomEvent("state-changed", { detail: { likedSongsOffset: gameState.likedSongsOffset } }));
+  dispatchStateChange();
 }

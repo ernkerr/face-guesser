@@ -4,7 +4,7 @@ import fetchTopArtists, {
   fetchSavedTracks,
   normalizeArtist,
 } from "../fetch/fetchSpotifyData.js";
-import { gameState } from "../utils/gameState.js";
+import { getState } from "../state/store.js";
 import { defaultOptions } from "./defaultCategories.js";
 import { loadCache } from "../utils/cache.js";
 
@@ -244,6 +244,7 @@ export async function createCustomCategories(artists) {
 }
 
 export function filterArtists() {
+  const gameState = getState();
   if (gameState.category === "DJ") return defaultOptions;
   if (gameState.category === "Top Artists") return topArtistArray;
   if (gameState.category === "Liked Tracks") return likedTracksArray;
