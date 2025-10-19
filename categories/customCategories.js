@@ -142,7 +142,9 @@ export default async function getUserInfo(token) {
   console.log(`User ID: ${userID}`);
   // use the userId to get playlists, etc.
 
-  // await createCustomCategories(artists);
+  const customCategories = await createCustomCategories(artists);
+  document.dispatchEvent(new CustomEvent("categories-ready", { detail: customCategories }));
+
   console.log("✅ Finished getUserInfo");
 }
 
@@ -247,7 +249,7 @@ export function filterArtists() {
   const gameState = getState();
   if (gameState.category === "DJ") return defaultOptions;
   if (gameState.category === "Top Artists") return topArtistArray;
-  if (gameState.category === "Liked Tracks") return likedTracksArray;
+  if (gameState.category === "Liked Songs") return likedTracksArray;
 
   // let category = gameState.category;
   // category = "Top Artists"

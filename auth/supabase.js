@@ -1,5 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import { updateUser, updateLogout } from "../ui/updater.js";
+import { updateUser, updateLogout } from "../ui/renderer.js";
 
 import getUserInfo from "../categories/customCategories.js";
 import { showTitleScreen } from "../ui/screens.js";

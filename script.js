@@ -2,7 +2,7 @@ import { roundGenerator } from "./utils/roundGenerator.js";
 import { handleClickGuess, handleExpertGuess } from "./utils/guessHandler.js";
 import { initAnimations } from "./ui/animations.js";
 import { showGameScreen, showGameOverScreen } from "./ui/screens.js";
-import { getState, addSeenArtist, setAnswerIndex, setCategory, setMode } from "./state/store.js";
+import { getState, addSeenArtist, setAnswerIndex, setCategory, setMode, setCurrentRoundArtists } from "./state/store.js";
 import { loginWithSpotify } from "./auth/supabase.js";
 import { filterArtists } from "./categories/customCategories.js";
 import { initUI, disableGrid, getGuess, clearGuess } from "./ui/renderer.js";
@@ -10,7 +10,7 @@ import { initUI, disableGrid, getGuess, clearGuess } from "./ui/renderer.js";
 await initAnimations(); // preload JSONs
 
 let categories = ["DJ"];
-let backgroundFetcher = { intervalId: null };
+
 
 document.addEventListener("categories-ready", (e) => {
     console.log("Categories ready: ", e.detail);
@@ -28,6 +28,7 @@ function startGame() {
     setTimeout(() => {
         showGameScreen();
         const availableArtists = filterArtists();
+        setCurrentRoundArtists(availableArtists);
         setAnswerIndex(roundGenerator(availableArtists, getState().mode));
     }, 500);
 }
@@ -46,6 +47,7 @@ function handleNext() {
     }
 
     const availableArtists = filterArtists();
+    setCurrentRoundArtists(availableArtists);
     setAnswerIndex(roundGenerator(availableArtists, getState().mode));
 }
 
@@ -56,9 +58,9 @@ function handleGameOver() {
 function checkExpertGuess() {
     const userGuess = getGuess();
     const correctAnswer = getState().currentRoundArtists[getState().answerIndex].name;
-    const correct = handleExpertGuess(userGuess, correctAnswer);
+    const isCorrect = handleExpertGuess(userGuess, correctAnswer);
 
-    if (correct) {
+    if (isCorrect) {
         addSeenArtist(getState().currentRoundArtists[getState().answerIndex].id);
     }
 
@@ -67,7 +69,6 @@ function checkExpertGuess() {
     }
 
     clearGuess();
-    return correct;
 }
 
 function handleGuess(guessIndex) {

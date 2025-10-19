@@ -14,6 +14,11 @@ const elements = {
     tryAgainButton: document.getElementById("try-again"),
     score: document.getElementById("score"),
     lives: document.getElementById("lives"),
+    heartsContainer: document.getElementById("hearts"),
+    userBtn: document.getElementById("user-btn"),
+    logoutBtn: document.getElementById("logout-btn"),
+    userImg: document.getElementById("user-img"),
+    userName: document.getElementById("user-name"),
 };
 
 store.addEventListener("state-changed", (e) => {
@@ -27,6 +32,12 @@ function render(state) {
     renderLives(state.lives);
 }
 
+function triggerAnimation(element, className) {
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+}
+
 function renderCategory(category) {
     elements.categoryBtn.textContent = `Category: ${category}`;
 }
@@ -37,11 +48,30 @@ function renderMode(mode) {
 }
 
 function renderScore(score) {
+    triggerAnimation(elements.score, "gelatine");
     elements.score.textContent = `Score: ${score}`;
 }
 
 function renderLives(lives) {
-    elements.lives.textContent = `Lives: ${lives}`;
+    const hearts = document.querySelectorAll(".heart");
+    if (hearts[lives]) {
+        hearts[lives].remove();
+    }
+}
+
+export function updateUser(url, name) {
+  elements.userImg.src = url;
+  elements.userName.textContent = name;
+
+  elements.spotifyBtn.classList.add("hidden"); // hide login button
+  elements.userBtn.classList.remove("hidden"); // show user button
+  elements.logoutBtn.classList.add("hidden"); // hide logout initially
+}
+
+export function updateLogout() {
+  elements.spotifyBtn.classList.remove("hidden"); // show login button
+  elements.userBtn.classList.add("hidden"); // hide user button
+  elements.logoutBtn.classList.add("hidden"); // hide logout button
 }
 
 export function updateQuestionUI(answer, mode) {
@@ -120,5 +150,9 @@ export function initUI(callbacks) {
                 callbacks.onGuess(guessIndex);
             }
         });
+    });
+
+    elements.userBtn.addEventListener("click", () => {
+        elements.logoutBtn.classList.toggle("hidden");
     });
 }

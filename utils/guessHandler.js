@@ -1,6 +1,5 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.esm.js";
 import { updateScore, removeLife, getState } from "../state/store.js";
-import { updateScoreDisplay, removeHeart } from "../ui/updater.js";
 import { playAnimation } from "../ui/animations.js";
 
 /**
@@ -15,12 +14,10 @@ import { playAnimation } from "../ui/animations.js";
 export function handleClickGuess(guessIndex, answerIndex) {
   if (guessIndex === answerIndex) {
     updateScore(10); // updates gameState
-    updateScoreDisplay(gameState.score); // updates UI
     playAnimation("correct");
     return true;
   } else {
     removeLife();
-    removeHeart(gameState.lives);
     playAnimation("incorrect");
     return false;
   }
@@ -59,12 +56,10 @@ export function handleExpertGuess(userGuess, correctAnswer) {
     guess.length / answer.length >= minLengthRatio
   ) {
     updateScore(10);
-    updateScoreDisplay(gameState.score); // updates UI
     playAnimation("correct");
     return true;
   } else {
     removeLife();
-    removeHeart(gameState.lives);
     playAnimation("incorrect");
     return false;
   }
@@ -72,4 +67,4 @@ export function handleExpertGuess(userGuess, correctAnswer) {
 // alt if fuzzy search doesn't work very well
 // Levenshtein Distance Algorithm
 // Jaro-Winkler Distance
-// Soundex and Metaphone Algorithms
+// Soundex and Metaphone Algorithms");
