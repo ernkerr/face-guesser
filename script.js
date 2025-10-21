@@ -45,15 +45,7 @@ spotifyBtn.addEventListener("click", loginWithSpotify);
 // CATEGORIES
 // =========================================
 
-let categories = ["DJ"];
-
-function getCustomCategories() {
-  let newCategories = createCustomCategories();
-  console.log("New Categories: ", newCategories);
-  categories = newCategories;
-}
-
-getCustomCategories();
+let categories = await createCustomCategories();
 
 categoryBtn.textContent = `Category: ${gameState.category}`;
 categoryBtn.addEventListener("click", switchCategory);
@@ -72,7 +64,6 @@ function switchCategory() {
 startBtn.addEventListener("click", () => {
   setTimeout(() => {
     showGameScreen();
-    // generate filtered Options HERE
     filteredOptions = filterArtists();
     console.log(
       "Filtered Artists passed to round generator: ",

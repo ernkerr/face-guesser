@@ -71,17 +71,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 function generateCustomGame(token) {
   getUserInfo(token);
-
-  // fetchUserPlaylists(token, userId);
 }
-
-// // Usage
-// getFavoriteColor(token)
-
-// functions to write:
-// update ui
-
-// fetchSpotifyArtists
 
 // Make a request to the API endpoint (a URL that returns data, like Spotify’s /me/top/artists).
 // function to call spotify's API pass in the token as headers
