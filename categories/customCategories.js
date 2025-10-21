@@ -13,7 +13,7 @@ import { loadCache } from "../utils/cache.js";
 const artists = {}; // holds all artist objects keyed by ID
 let availableCategories = []; // category names for the game
 let topArtistArray = []; // array of top artists for filtering
-let likedTracksArray = [];
+let likedSongsArray = [];
 let artistsToNormalize = []; // ongoing array of artists which we need to fetch information for
 
 // ----------------------
@@ -131,7 +131,7 @@ export default async function getUserInfo(token) {
   await addUniqueArtists(artists, artistsSavedTracks);
 
   // store an array of the artists from the user's saved tracks in the artists object
-  likedTracksArray = artistsSavedTracks;
+  likedSongsArray = artistsSavedTracks;
 
   //
   // STEP 3
@@ -210,9 +210,24 @@ export async function createCustomCategories() {
 }
 
 export function filterArtists() {
-  // if (gameState.category === "DJ") return defaultOptions;
   if (gameState.category === "Top Artists") return topArtistArray;
-  if (gameState.category === "Liked Tracks") return likedTracksArray;
+  if (gameState.category === "Liked Songs") return likedSongsArray;
+
+  // Convert the artists object into an array of artist objects for filtering
+  const allArtists = Object.values(artists);
+
+  function isGenre(artist) {
+    // Ensure artist and artist.genres exist before checking
+    if (!artist || !artist.genres) {
+      return false;
+    }
+    console.log("artist genres: ", artist.genres);
+    console.log("gamestate category: ", gameState.category);
+    // Check if the artist's genres array includes the current gameState.category
+    return artist.genres.includes(gameState.category);
+  }
+
+  return allArtists.filter(isGenre);
 }
 
 // Category Ideas:
