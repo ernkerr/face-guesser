@@ -1,10 +1,12 @@
+import { showLoginScreen } from "../ui/screens.js";
+import { supabase } from "../auth/supabase.js";
 import fetchTopArtists, {
   fetchTopArtists2,
   fetchUserID,
   fetchSavedTracks,
   normalizeArtist,
 } from "../fetch/fetchSpotifyData.js";
-import { getState } from "../state/store.js";
+import { gameState } from "../utils/gameState.js";
 import { defaultOptions } from "./defaultCategories.js";
 import { loadCache } from "../utils/cache.js";
 
@@ -13,8 +15,7 @@ import { loadCache } from "../utils/cache.js";
 const artists = {}; // holds all artist objects keyed by ID
 let availableCategories = []; // category names for the game
 let topArtistArray = []; // array of top artists for filtering
-let likedTracksArray = [];
-
+let likedSongsArray = [];
 let artistsToNormalize = []; // ongoing array of artists which we need to fetch information for
 
 // ----------------------
@@ -132,34 +133,38 @@ export default async function getUserInfo(token) {
   await addUniqueArtists(artists, artistsSavedTracks);
 
   // store an array of the artists from the user's saved tracks in the artists object
-  likedTracksArray = artistsSavedTracks;
+  likedSongsArray = artistsSavedTracks;
 
   //
   // STEP 3
   //
-  console.log("Fetching user ID...");
-  let userID = await fetchUserID(token);
-  console.log(`User ID: ${userID}`);
-  // use the userId to get playlists, etc.
+  try {
+    // console.log("Fetching user ID...");
+    let userID = await fetchUserID(token);
+    // console.log(`User ID: ${userID}`);
+    // use the userId to get playlists, etc.
 
-  const customCategories = await createCustomCategories(artists);
-  document.dispatchEvent(new CustomEvent("categories-ready", { detail: customCategories }));
-
+    // await createCustomCategories(artists);
+  } catch (error) {
+    if (error.message.includes("401")) {
+      console.log("Session expired, logging out.");
+      const { error } = await supabase.auth.signOut();
+      if (error) console.error(error);
+      showLoginScreen();
+    }
+  }
   console.log("✅ Finished getUserInfo");
 }
 
 // create a full list of categories and add them to the list of categories
+// only if it's unique
 
-export async function createCustomCategories(artists) {
-  console.log("Creating custom Categories");
-  if (!artists) {
-    console.warn("createCustomCategories called with no artists!");
-    return [];
-  }
+export async function createCustomCategories() {
+  console.log("createCustomCategories Called");
 
   availableCategories.push("Top Artists");
   availableCategories.push("Liked Songs");
-  // availableCategories.push("Genreless");
+  availableCategories.push("Genreless");
 
   // TODO: Logic for other categories
   const genreCounts = {};
@@ -175,7 +180,7 @@ export async function createCustomCategories(artists) {
     //
     // handle invalid artists
     if (!artist || !artist.genres) {
-      console.warn("Skipping invalid artist:", artist);
+      // console.warn("Skipping invalid artist:", artist);
       continue; // ⬅ skip null/undefined ones
     }
     // genreless
@@ -201,115 +206,52 @@ export async function createCustomCategories(artists) {
   const sortedGenres = Object.fromEntries(
     Object.entries(genreCounts).sort((a, b) => b[1] - a[1])
   );
-  console.log("Sorted Genres:", Object.entries(sortedGenres));
+  // console.log("Sorted Genres:", Object.entries(sortedGenres));
+  // console.log(typeof Object.entries(sortedGenres)); // object
 
   // if the genre has more than ~ 30 artists, create a category for it
   for (const genre of Object.entries(sortedGenres)) {
-    if (genre.length >= 5) {
-      console.log("New Genre: ", genre);
+    if (genre[1] >= 5) {
       // get all of the artists in this genre and add it to the artists object (like top songs)
-      availableCategories.push(`${genre.name}`);
-      console.log("Added a new avaliable category: ", availableCategories);
+      availableCategories.push(`${genre[0]}`);
     }
   }
 
-  // console.log("Sorted Genres", sortedGenres);
-
+  console.log("Returning avaliable categories: ", availableCategories);
   return availableCategories;
-
-  // categories:
-  //
-  // 1. top artists (done)
-  //
-  // 2. liked songs (get from playlist)
-  //
-  // 3.
-  // by genre:
-
-  // you need to look at all the artists’ .genres arrays and count how many times each genre appears.
-  // . filter => artists.genre.includes("")
-  // look at the most popular genre to the least (make sure there are at least 30 artists?)
-  // no genre (if they have multiple artists with no genres);
-  //
-
-  //
-
-  // filter artists based on custom categories
-
-  // Category Ideas:
-  // Top Artists
-  // Genres [tech house, techno, rock, etc.]
-  // BPM over ${user's max BPM with at least 50? artists}
-  // Release Radar
-  // "Newly Discovered" → top artists from the last 2 weeks/months
-  // "Classic Favorites" → top artists over the long term
 }
 
 export function filterArtists() {
-  const gameState = getState();
-  if (gameState.category === "DJ") return defaultOptions;
   if (gameState.category === "Top Artists") return topArtistArray;
   if (gameState.category === "Liked Songs") return likedTracksArray;
+  if (gameState.category === "Genreless") {
+    const allArtists = Object.values(artists);
+    return allArtists.filter(
+      (artist) => !artist.genres || artist.genres.length === 0
+    );
+  }
 
-  // let category = gameState.category;
-  // category = "Top Artists"
-  // but I want to get the artists.topArtists
-  // filtered Options should be an ARRAY
+  // Convert the artists object into an array of artist objects for filtering
+  const allArtists = Object.values(artists);
 
-  // return filteredOptions;
+  function isGenre(artist) {
+    // Ensure artist and artist.genres exist before checking
+    if (!artist || !artist.genres) {
+      return false;
+    }
+    console.log("artist genres: ", artist.genres);
+    console.log("gamestate category: ", gameState.category);
+    // Check if the artist's genres array includes the current gameState.category
+    return artist.genres.includes(gameState.category);
+  }
+
+  return allArtists.filter(isGenre);
 }
 
-// 0cmWgDlu9CwTgxPhf403hb
-// :
-// external_urls
-// :
-// {spotify: 'https://open.spotify.com/artist/0cmWgDlu9CwTgxPhf403hb'}
-// followers
-// :
-// {href: null, total: 1465472}
-// genres
-// :
-// (4) ['trip hop', 'downtempo', 'nu jazz', 'electronic']
-// href
-// :
-// "https://api.spotify.com/v1/artists/0cmWgDlu9CwTgxPhf403hb"
-// id
-// :
-// "0cmWgDlu9CwTgxPhf403hb"
-// images
-// :
-// (3) [{…}, {…}, {…}]
-// name
-// :
-// "Bonobo"
-// popularity
-// :
-// 62
-// type
-// :
-// "artist"
-// uri
-// :
-// "spotify:artist:0cmWgDlu9CwTgxPhf403hb"
-// [[Prototype]]
-// :
-// Object
-
-// ui
-// actually make custom categories it's own button (so they can still play generic ones)
-// Once logged in, split into two buttons
-// global // personal
-// global can be the default when no one's logged in play against others p2
-
-// P2: another button that comes up (from last 2 months, last 6 months, etc. pass in value for fetch url so they can see top artists from recently etc.)
-
-// ======= CATEGORY =======
-// let categoryTitle = category.toUpperCase();
-// document.getElementById("category").textContent = `${categoryTitle}`;
-// P2: let user select a category (must be logged in error toast)
-// if they are logged in then they can switch the category like they can switch the mode
-// get that user's category: artist, rapper,  country singer, etc.
-
-// let category = gameState.category;
-// let filteredOptions = options.filter((option) => option.category === category); // filter for the selected category
-// console.log("Filtered Options", filteredOptions);
+// Category Ideas:
+// Top Artists
+// Genres [tech house, techno, rock, etc.]
+// BPM over ${user's max BPM with at least 50? artists}
+// Release Radar
+// "Newly Discovered" → top artists from the last 2 weeks/months
+// "Classic Favorites" → top artists over the long term
