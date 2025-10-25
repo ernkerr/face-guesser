@@ -1,3 +1,5 @@
+import { showLoginScreen } from "../ui/screens.js";
+import { supabase } from "../auth/supabase.js";
 import fetchTopArtists, {
   fetchTopArtists2,
   fetchUserID,
@@ -136,12 +138,21 @@ export default async function getUserInfo(token) {
   //
   // STEP 3
   //
-  // console.log("Fetching user ID...");
-  let userID = await fetchUserID(token);
-  // console.log(`User ID: ${userID}`);
-  // use the userId to get playlists, etc.
+  try {
+    // console.log("Fetching user ID...");
+    let userID = await fetchUserID(token);
+    // console.log(`User ID: ${userID}`);
+    // use the userId to get playlists, etc.
 
-  // await createCustomCategories(artists);
+    // await createCustomCategories(artists);
+  } catch (error) {
+    if (error.message.includes("401")) {
+      console.log("Session expired, logging out.");
+      const { error } = await supabase.auth.signOut();
+      if (error) console.error(error);
+      showLoginScreen();
+    }
+  }
   console.log("✅ Finished getUserInfo");
 }
 

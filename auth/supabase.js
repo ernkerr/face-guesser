@@ -7,7 +7,7 @@ import { showTitleScreen } from "../ui/screens.js";
 const supabaseUrl = "https://oonqcxtqkywqfgdjjvbt.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vbnFjeHRxa3l3cWZnZGpqdmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDU2NDAsImV4cCI6MjA3NjE4MTY0MH0.GmdZzswIzRUiArG24rcwiR3kMq6PQE1Bhuy9YwevRSQ";
-const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 let customGameGenerated = false; // flag to prevent multiple calls
 
