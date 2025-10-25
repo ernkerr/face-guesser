@@ -151,8 +151,9 @@ export default async function getUserInfo(token) {
 export async function createCustomCategories() {
   console.log("createCustomCategories Called");
 
+  availableCategories.push("Top Artists");
   availableCategories.push("Liked Songs");
-  // availableCategories.push("Genreless");
+  availableCategories.push("Genreless");
 
   // TODO: Logic for other categories
   const genreCounts = {};
@@ -211,7 +212,13 @@ export async function createCustomCategories() {
 
 export function filterArtists() {
   if (gameState.category === "Top Artists") return topArtistArray;
-  if (gameState.category === "Liked Songs") return likedSongsArray;
+  if (gameState.category === "Liked Songs") return likedTracksArray;
+  if (gameState.category === "Genreless") {
+    const allArtists = Object.values(artists);
+    return allArtists.filter(
+      (artist) => !artist.genres || artist.genres.length === 0
+    );
+  }
 
   // Convert the artists object into an array of artist objects for filtering
   const allArtists = Object.values(artists);
